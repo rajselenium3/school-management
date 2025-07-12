@@ -1,0 +1,529 @@
+/* Teacher Management Styles */
+.teacher-management {
+  background: #f5f5f5;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.teacher-header {
+  margin-bottom: 32px;
+}
+
+.teacher-title {
+  font-weight: 700 !important;
+  background: linear-gradient(45deg, #1976d2, #42a5f5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px !important;
+}
+
+.teacher-subtitle {
+  color: #666 !important;
+  font-weight: 400 !important;
+}
+
+/* Statistics Cards */
+.stats-card {
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%) !important;
+  border: 1px solid #e0e0e0 !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+  border-radius: 12px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.stats-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+}
+
+.stats-value {
+  font-size: 2rem !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  margin-bottom: 4px !important;
+}
+
+.stats-label {
+  font-weight: 500 !important;
+  color: #666 !important;
+  font-size: 0.875rem !important;
+}
+
+.stats-icon {
+  width: 48px !important;
+  height: 48px !important;
+  opacity: 0.9;
+}
+
+/* Search and Filter Section */
+.filter-card {
+  background: white !important;
+  border: 1px solid #e0e0e0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  border-radius: 12px !important;
+  margin-bottom: 24px !important;
+}
+
+.search-field .MuiOutlinedInput-root {
+  border-radius: 8px !important;
+}
+
+.search-field .MuiInputAdornment-root .MuiSvgIcon-root {
+  color: #1976d2 !important;
+}
+
+.filter-select {
+  border-radius: 8px !important;
+}
+
+.action-button {
+  background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%) !important;
+  color: white !important;
+  border-radius: 8px !important;
+  text-transform: none !important;
+  font-weight: 600 !important;
+  padding: 8px 20px !important;
+  transition: all 0.3s ease !important;
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.4);
+}
+
+.export-button {
+  border-radius: 8px !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  color: #1976d2 !important;
+  border-color: #1976d2 !important;
+}
+
+.export-button:hover {
+  background: rgba(25, 118, 210, 0.08) !important;
+}
+
+/* Table Styles */
+.teachers-table {
+  background: white !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+.table-header {
+  background: #f8f9fa !important;
+}
+
+.table-header .MuiTableCell-root {
+  font-weight: 700 !important;
+  color: #2c3e50 !important;
+  border-bottom: 1px solid #e0e0e0 !important;
+  padding: 16px !important;
+}
+
+.table-row {
+  transition: background-color 0.3s ease !important;
+}
+
+.table-row:hover {
+  background: #f8f9fa !important;
+}
+
+.teacher-avatar {
+  background: linear-gradient(45deg, #1976d2, #42a5f5) !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+}
+
+.teacher-name {
+  font-weight: 600 !important;
+  color: #2c3e50 !important;
+  margin-bottom: 2px !important;
+}
+
+.teacher-email {
+  color: #666 !important;
+  font-size: 0.75rem !important;
+}
+
+.employee-id {
+  font-family: 'Monaco', 'Consolas', monospace !important;
+  background: #f1f3f4;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.department-chip {
+  background: rgba(25, 118, 210, 0.1) !important;
+  color: #1976d2 !important;
+  border: 1px solid rgba(25, 118, 210, 0.3) !important;
+  font-weight: 500 !important;
+}
+
+.subject-chip {
+  background: #f1f3f4 !important;
+  color: #2c3e50 !important;
+  font-size: 0.7rem !important;
+  height: 20px !important;
+  margin: 1px !important;
+}
+
+.performance-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.performance-star {
+  font-size: 1rem !important;
+}
+
+.performance-score {
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+}
+
+.employment-chip {
+  font-size: 0.75rem !important;
+  height: 22px !important;
+  font-weight: 500 !important;
+}
+
+.employment-chip.full-time {
+  background: rgba(76, 175, 80, 0.1) !important;
+  color: #4caf50 !important;
+}
+
+.employment-chip.part-time {
+  background: rgba(255, 152, 0, 0.1) !important;
+  color: #ff9800 !important;
+}
+
+.employment-chip.contract {
+  background: rgba(156, 39, 176, 0.1) !important;
+  color: #9c27b0 !important;
+}
+
+/* Action Buttons */
+.action-icons {
+  display: flex;
+  gap: 4px;
+}
+
+.action-icon {
+  padding: 6px !important;
+  border-radius: 6px !important;
+  transition: all 0.3s ease !important;
+}
+
+.action-icon.view {
+  color: #1976d2 !important;
+}
+
+.action-icon.view:hover {
+  background: rgba(25, 118, 210, 0.1) !important;
+}
+
+.action-icon.edit {
+  color: #ff9800 !important;
+}
+
+.action-icon.edit:hover {
+  background: rgba(255, 152, 0, 0.1) !important;
+}
+
+.action-icon.delete {
+  color: #f44336 !important;
+}
+
+.action-icon.delete:hover {
+  background: rgba(244, 67, 54, 0.1) !important;
+}
+
+/* Dialog Styles */
+.teacher-dialog .MuiDialogTitle-root {
+  background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%) !important;
+  color: white !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-weight: 600 !important;
+}
+
+.teacher-dialog .MuiDialogContent-root {
+  padding: 24px !important;
+}
+
+.teacher-dialog .MuiTextField-root {
+  margin-bottom: 16px;
+}
+
+.teacher-dialog .MuiOutlinedInput-root {
+  border-radius: 8px !important;
+}
+
+.teacher-dialog .MuiFormControl-root {
+  margin-bottom: 16px;
+}
+
+/* Teacher Profile View */
+.teacher-profile {
+  text-align: center;
+  padding: 24px;
+}
+
+.teacher-profile-avatar {
+  width: 120px !important;
+  height: 120px !important;
+  margin: 0 auto 16px !important;
+  background: linear-gradient(45deg, #1976d2, #42a5f5) !important;
+  font-size: 2rem !important;
+  font-weight: 600 !important;
+}
+
+.teacher-profile-name {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: #2c3e50 !important;
+  margin-bottom: 4px !important;
+}
+
+.teacher-profile-department {
+  color: #666 !important;
+  font-size: 1rem !important;
+  margin-bottom: 16px !important;
+}
+
+.teacher-profile-subjects {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.profile-subject-chip {
+  background: rgba(25, 118, 210, 0.1) !important;
+  color: #1976d2 !important;
+  font-weight: 500 !important;
+}
+
+.teacher-details {
+  text-align: left;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.detail-item:hover {
+  background: #f8f9fa;
+}
+
+.detail-icon {
+  color: #1976d2 !important;
+}
+
+.detail-content {
+  flex: 1;
+}
+
+.detail-label {
+  font-size: 0.75rem !important;
+  color: #666 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500 !important;
+  margin-bottom: 2px !important;
+}
+
+.detail-value {
+  font-size: 0.875rem !important;
+  color: #2c3e50 !important;
+  font-weight: 500 !important;
+}
+
+/* Performance Metrics */
+.performance-section {
+  margin-top: 24px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.performance-title {
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  color: #2c3e50 !important;
+  margin-bottom: 16px !important;
+}
+
+.performance-metric {
+  margin-bottom: 16px;
+}
+
+.metric-label {
+  font-size: 0.75rem !important;
+  color: #666 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500 !important;
+  margin-bottom: 4px !important;
+}
+
+.metric-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.metric-bar {
+  flex: 1;
+  height: 8px !important;
+  border-radius: 4px !important;
+  background: #e0e0e0 !important;
+}
+
+.metric-bar .MuiLinearProgress-bar {
+  border-radius: 4px !important;
+  background: linear-gradient(45deg, #4caf50, #66bb6a) !important;
+}
+
+.metric-value {
+  font-weight: 600 !important;
+  color: #2c3e50 !important;
+  font-size: 0.875rem !important;
+  min-width: 40px;
+}
+
+/* Loading State */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 24px;
+}
+
+.loading-spinner {
+  color: #1976d2 !important;
+}
+
+.loading-text {
+  color: #666 !important;
+  font-weight: 500 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 960px) {
+  .teacher-management {
+    padding: 16px;
+  }
+
+  .teacher-title {
+    font-size: 2rem !important;
+  }
+
+  .filter-card .MuiCardContent-root {
+    padding: 16px !important;
+  }
+
+  .action-button {
+    font-size: 0.875rem !important;
+    padding: 6px 16px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .teacher-management {
+    padding: 12px;
+  }
+
+  .teacher-title {
+    font-size: 1.75rem !important;
+  }
+
+  .stats-value {
+    font-size: 1.5rem !important;
+  }
+
+  .table-header .MuiTableCell-root {
+    padding: 12px 8px !important;
+    font-size: 0.875rem !important;
+  }
+
+  .table-row .MuiTableCell-root {
+    padding: 12px 8px !important;
+  }
+
+  .teacher-dialog .MuiDialogContent-root {
+    padding: 16px !important;
+  }
+
+  .teacher-profile-avatar {
+    width: 80px !important;
+    height: 80px !important;
+    font-size: 1.5rem !important;
+  }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.teacher-management > * {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.stats-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.stats-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.stats-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.stats-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.table-row {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.table-row:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.table-row:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.table-row:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.table-row:nth-child(4) {
+  animation-delay: 0.25s;
+}
+.table-row:nth-child(5) {
+  animation-delay: 0.3s;
+}

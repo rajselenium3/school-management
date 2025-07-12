@@ -1,0 +1,944 @@
+/* Student Management Styles */
+.student-management {
+  background: #f5f5f5;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.student-header {
+  margin-bottom: 32px;
+}
+
+.student-title {
+  font-weight: 700 !important;
+  background: linear-gradient(45deg, #1976d2, #42a5f5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px !important;
+}
+
+.student-subtitle {
+  color: #666 !important;
+  font-weight: 400 !important;
+}
+
+/* Statistics Cards */
+.stats-card {
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%) !important;
+  border: 1px solid #e0e0e0 !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+  border-radius: 12px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.stats-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+}
+
+.stats-value {
+  font-size: 2rem !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  margin-bottom: 4px !important;
+}
+
+.stats-label {
+  font-weight: 500 !important;
+  color: #666 !important;
+  font-size: 0.875rem !important;
+}
+
+.stats-icon {
+  width: 48px !important;
+  height: 48px !important;
+  opacity: 0.9;
+}
+
+.stats-trend {
+  font-size: 0.7rem !important;
+  height: 20px !important;
+  font-weight: 500 !important;
+}
+
+/* Search and Filter Section */
+.filter-card {
+  background: white !important;
+  border: 1px solid #e0e0e0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  border-radius: 12px !important;
+  margin-bottom: 24px !important;
+}
+
+.search-field .MuiOutlinedInput-root {
+  border-radius: 8px !important;
+}
+
+.search-field .MuiInputAdornment-root .MuiSvgIcon-root {
+  color: #1976d2 !important;
+}
+
+.filter-select {
+  border-radius: 8px !important;
+}
+
+.action-button {
+  background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%) !important;
+  color: white !important;
+  border-radius: 8px !important;
+  text-transform: none !important;
+  font-weight: 600 !important;
+  padding: 8px 20px !important;
+  transition: all 0.3s ease !important;
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.4);
+}
+
+.export-button {
+  border-radius: 8px !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  color: #1976d2 !important;
+  border-color: #1976d2 !important;
+}
+
+.export-button:hover {
+  background: rgba(25, 118, 210, 0.08) !important;
+}
+
+/* AI Insights Banner */
+.ai-insights-banner {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  margin-bottom: 24px !important;
+}
+
+.ai-banner-title {
+  font-weight: 600 !important;
+  color: #1976d2 !important;
+  margin-bottom: 4px !important;
+}
+
+.ai-banner-description {
+  color: #1565c0 !important;
+  line-height: 1.5;
+}
+
+.ai-banner-button {
+  color: #1976d2 !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+}
+
+/* Table Styles */
+.students-table {
+  background: white !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+.table-header {
+  background: #f8f9fa !important;
+}
+
+.table-header .MuiTableCell-root {
+  font-weight: 700 !important;
+  color: #2c3e50 !important;
+  border-bottom: 1px solid #e0e0e0 !important;
+  padding: 16px !important;
+}
+
+.table-row {
+  transition: background-color 0.3s ease !important;
+}
+
+.table-row:hover {
+  background: #f8f9fa !important;
+}
+
+.student-avatar {
+  background: linear-gradient(45deg, #1976d2, #42a5f5) !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+}
+
+.student-name {
+  font-weight: 600 !important;
+  color: #2c3e50 !important;
+  margin-bottom: 2px !important;
+}
+
+.student-email {
+  color: #666 !important;
+  font-size: 0.75rem !important;
+}
+
+.student-id {
+  font-family: 'Monaco', 'Consolas', monospace !important;
+  background: #f1f3f4;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #1976d2;
+  font-weight: 600;
+}
+
+.roll-number {
+  font-family: 'Monaco', 'Consolas', monospace !important;
+  color: #666 !important;
+  font-size: 0.75rem !important;
+}
+
+.grade-chip {
+  background: rgba(25, 118, 210, 0.1) !important;
+  color: #1976d2 !important;
+  border: 1px solid rgba(25, 118, 210, 0.3) !important;
+  font-weight: 500 !important;
+}
+
+.gpa-score {
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+}
+
+.gpa-star {
+  font-size: 1rem !important;
+}
+
+.attendance-rate {
+  font-weight: 600 !important;
+  margin-bottom: 4px !important;
+}
+
+.attendance-progress {
+  margin-top: 4px !important;
+  height: 4px !important;
+  border-radius: 2px !important;
+}
+
+.risk-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.risk-low {
+  background-color: #4caf50;
+}
+
+.risk-medium {
+  background-color: #ff9800;
+}
+
+.risk-high {
+  background-color: #f44336;
+}
+
+.risk-text {
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+}
+
+.status-chip {
+  font-size: 0.75rem !important;
+  height: 22px !important;
+  font-weight: 500 !important;
+}
+
+.status-chip.active {
+  background: rgba(76, 175, 80, 0.1) !important;
+  color: #4caf50 !important;
+}
+
+.status-chip.suspended {
+  background: rgba(244, 67, 54, 0.1) !important;
+  color: #f44336 !important;
+}
+
+.status-chip.graduated {
+  background: rgba(156, 39, 176, 0.1) !important;
+  color: #9c27b0 !important;
+}
+
+/* Action Buttons */
+.action-icons {
+  display: flex;
+  gap: 4px;
+}
+
+.action-icon {
+  padding: 6px !important;
+  border-radius: 6px !important;
+  transition: all 0.3s ease !important;
+}
+
+.action-icon.view {
+  color: #1976d2 !important;
+}
+
+.action-icon.view:hover {
+  background: rgba(25, 118, 210, 0.1) !important;
+}
+
+.action-icon.edit {
+  color: #ff9800 !important;
+}
+
+.action-icon.edit:hover {
+  background: rgba(255, 152, 0, 0.1) !important;
+}
+
+.action-icon.delete {
+  color: #f44336 !important;
+}
+
+.action-icon.delete:hover {
+  background: rgba(244, 67, 54, 0.1) !important;
+}
+
+/* Dialog Styles */
+.student-dialog .MuiDialogTitle-root {
+  background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%) !important;
+  color: white !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-weight: 600 !important;
+}
+
+.student-dialog .MuiDialogContent-root {
+  padding: 24px !important;
+}
+
+.student-dialog .MuiTextField-root {
+  margin-bottom: 16px;
+}
+
+.student-dialog .MuiOutlinedInput-root {
+  border-radius: 8px !important;
+}
+
+.student-dialog .MuiFormControl-root {
+  margin-bottom: 16px;
+}
+
+/* Student Profile View */
+.student-profile {
+  text-align: center;
+  padding: 24px;
+}
+
+.student-profile-avatar {
+  width: 120px !important;
+  height: 120px !important;
+  margin: 0 auto 16px !important;
+  background: linear-gradient(45deg, #1976d2, #42a5f5) !important;
+  font-size: 2rem !important;
+  font-weight: 600 !important;
+}
+
+.student-profile-name {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: #2c3e50 !important;
+  margin-bottom: 4px !important;
+}
+
+.student-profile-details {
+  color: #666 !important;
+  font-size: 1rem !important;
+  margin-bottom: 16px !important;
+}
+
+.student-profile-status {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.profile-status-chip {
+  background: rgba(25, 118, 210, 0.1) !important;
+  color: #1976d2 !important;
+  font-weight: 500 !important;
+}
+
+/* Tab Content */
+.tab-content {
+  min-height: 400px;
+}
+
+.tab-section-title {
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  color: #2c3e50 !important;
+  margin-bottom: 16px !important;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.detail-item:hover {
+  background: #f8f9fa;
+}
+
+.detail-icon {
+  color: #1976d2 !important;
+}
+
+.detail-content {
+  flex: 1;
+}
+
+.detail-label {
+  font-size: 0.75rem !important;
+  color: #666 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500 !important;
+  margin-bottom: 2px !important;
+}
+
+.detail-value {
+  font-size: 0.875rem !important;
+  color: #2c3e50 !important;
+  font-weight: 500 !important;
+}
+
+/* Academic Performance Cards */
+.performance-cards {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.performance-card {
+  text-align: center;
+  padding: 16px;
+  border-radius: 12px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  flex: 1;
+}
+
+.performance-value {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  margin-bottom: 8px !important;
+}
+
+.performance-label {
+  font-size: 0.75rem !important;
+  color: #666 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500 !important;
+}
+
+/* Subject Performance */
+.subject-performance {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.subject-item {
+  margin-bottom: 16px;
+}
+
+.subject-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.subject-name {
+  font-weight: 500 !important;
+  color: #2c3e50 !important;
+}
+
+.subject-score {
+  font-weight: 600 !important;
+  color: #1976d2 !important;
+}
+
+.subject-progress {
+  height: 6px !important;
+  border-radius: 3px !important;
+  background: #e0e0e0 !important;
+}
+
+.subject-progress .MuiLinearProgress-bar {
+  border-radius: 3px !important;
+}
+
+/* Family Information */
+.family-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 16px;
+}
+
+.parent-title {
+  font-weight: 600 !important;
+  color: #1976d2 !important;
+  margin-bottom: 16px !important;
+}
+
+.parent-detail {
+  margin-bottom: 12px;
+}
+
+.parent-label {
+  font-size: 0.75rem !important;
+  color: #666 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500 !important;
+  margin-bottom: 4px !important;
+}
+
+.parent-value {
+  color: #2c3e50 !important;
+  font-weight: 500 !important;
+}
+
+/* Medical Information */
+.medical-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.blood-group {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: #1976d2 !important;
+}
+
+.allergy-chip {
+  background: rgba(255, 152, 0, 0.1) !important;
+  color: #ff9800 !important;
+  margin: 4px !important;
+}
+
+.medication-chip {
+  background: rgba(33, 150, 243, 0.1) !important;
+  color: #2196f3 !important;
+  margin: 4px !important;
+}
+
+/* AI Insights */
+.ai-insights-section {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.risk-assessment-card {
+  text-align: center;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+}
+
+.risk-score {
+  font-size: 3rem !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  margin-bottom: 8px !important;
+}
+
+.risk-level-chip {
+  font-weight: 600 !important;
+}
+
+.trend-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.trend-text {
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+}
+
+.recommendations-list {
+  margin-top: 20px;
+}
+
+.recommendation-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.recommendation-item:last-child {
+  border-bottom: none;
+}
+
+.recommendation-icon {
+  color: #1976d2 !important;
+  margin-right: 12px !important;
+}
+
+.recommendation-text {
+  color: #2c3e50 !important;
+  line-height: 1.5;
+}
+
+/* Enrollment Stepper */
+.enrollment-stepper {
+  margin-bottom: 32px !important;
+}
+
+.enrollment-stepper .MuiStep-root {
+  padding: 8px !important;
+}
+
+.enrollment-stepper .MuiStepLabel-root {
+  cursor: pointer;
+}
+
+.enrollment-stepper .MuiStepIcon-root {
+  color: #e0e0e0 !important;
+  font-size: 1.5rem !important;
+}
+
+.enrollment-stepper .MuiStepIcon-root.Mui-active {
+  color: #1976d2 !important;
+}
+
+.enrollment-stepper .MuiStepIcon-root.Mui-completed {
+  color: #4caf50 !important;
+}
+
+.step-content {
+  min-height: 400px;
+  padding: 24px 0;
+}
+
+.step-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.step-back-button {
+  color: #666 !important;
+}
+
+.step-next-button {
+  background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%) !important;
+  color: white !important;
+  padding: 8px 24px !important;
+}
+
+.step-complete-button {
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%) !important;
+  color: white !important;
+  padding: 8px 24px !important;
+}
+
+/* Loading State */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 24px;
+}
+
+.loading-spinner {
+  color: #1976d2 !important;
+}
+
+.loading-text {
+  color: #666 !important;
+  font-weight: 500 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 960px) {
+  .student-management {
+    padding: 16px;
+  }
+
+  .student-title {
+    font-size: 2rem !important;
+  }
+
+  .filter-card .MuiCardContent-root {
+    padding: 16px !important;
+  }
+
+  .action-button {
+    font-size: 0.875rem !important;
+    padding: 6px 16px !important;
+  }
+
+  .performance-cards {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .performance-card {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .student-management {
+    padding: 12px;
+  }
+
+  .student-title {
+    font-size: 1.75rem !important;
+  }
+
+  .stats-value {
+    font-size: 1.5rem !important;
+  }
+
+  .table-header .MuiTableCell-root {
+    padding: 12px 8px !important;
+    font-size: 0.875rem !important;
+  }
+
+  .table-row .MuiTableCell-root {
+    padding: 12px 8px !important;
+  }
+
+  .student-dialog .MuiDialogContent-root {
+    padding: 16px !important;
+  }
+
+  .student-profile-avatar {
+    width: 80px !important;
+    height: 80px !important;
+    font-size: 1.5rem !important;
+  }
+
+  .performance-value {
+    font-size: 1.5rem !important;
+  }
+
+  .risk-score {
+    font-size: 2rem !important;
+  }
+
+  .step-content {
+    min-height: 300px;
+    padding: 16px 0;
+  }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.student-management > * {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.stats-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.stats-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.stats-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.stats-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.stats-card:nth-child(5) {
+  animation-delay: 0.5s;
+}
+.stats-card:nth-child(6) {
+  animation-delay: 0.6s;
+}
+
+.table-row {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.table-row:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.table-row:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.table-row:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.table-row:nth-child(4) {
+  animation-delay: 0.25s;
+}
+.table-row:nth-child(5) {
+  animation-delay: 0.3s;
+}
+
+/* Hover Effects */
+.stats-card:hover .stats-icon {
+  transform: scale(1.1);
+}
+
+.action-icon:hover {
+  transform: scale(1.1);
+}
+
+.table-row:hover .student-avatar {
+  transform: scale(1.05);
+}
+
+.subject-item:hover {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 8px;
+  margin: 8px 0;
+}
+
+/* Custom Scrollbar */
+.tab-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tab-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.tab-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.tab-content::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Form Section Dividers */
+.form-section-divider {
+  margin: 24px 0 !important;
+  border-color: #e0e0e0 !important;
+}
+
+.form-section-title {
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  color: #1976d2 !important;
+  margin-bottom: 16px !important;
+}
+
+/* Emergency Contact Section */
+.emergency-section {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.emergency-title {
+  color: #f44336 !important;
+  font-weight: 600 !important;
+  margin-bottom: 16px !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Medical Section */
+.medical-section {
+  background: #e8f5e8;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.medical-title {
+  color: #4caf50 !important;
+  font-weight: 600 !important;
+  margin-bottom: 16px !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Success States */
+.success-indicator {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.warning-indicator {
+  color: #ff9800;
+  font-weight: 600;
+}
+
+.error-indicator {
+  color: #f44336;
+  font-weight: 600;
+}
+
+/* Print Styles */
+@media print {
+  .student-management {
+    padding: 0;
+    background: white;
+  }
+
+  .action-buttons,
+  .filter-card,
+  .action-icons {
+    display: none !important;
+  }
+
+  .students-table {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+}

@@ -1,0 +1,257 @@
+/* Login Page Styles */
+.login-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.login-branding {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: white;
+}
+
+.branding-content {
+  max-width: 600px;
+  width: 100%;
+}
+
+.branding-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.branding-icon {
+  font-size: 3rem !important;
+  margin-right: 1rem;
+  color: white;
+}
+
+.branding-title {
+  color: white !important;
+  font-weight: 700 !important;
+}
+
+.branding-subtitle {
+  color: rgba(255, 255, 255, 0.9) !important;
+  margin-bottom: 3rem !important;
+  line-height: 1.6;
+}
+
+.features-grid {
+  margin-top: 2rem;
+}
+
+.feature-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  transition:
+    transform 0.3s ease,
+    background 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.feature-icon {
+  font-size: 2.5rem !important;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.feature-icon.brain {
+  color: #64b5f6;
+}
+
+.feature-icon.users {
+  color: #81c784;
+}
+
+.feature-icon.schedule {
+  color: #ffb74d;
+}
+
+.feature-icon.analytics {
+  color: #f06292;
+}
+
+.feature-title {
+  color: white !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.feature-description {
+  color: rgba(255, 255, 255, 0.8) !important;
+  line-height: 1.5;
+}
+
+.login-form-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: white;
+}
+
+.login-form-paper {
+  width: 100%;
+  max-width: 450px;
+  padding: 3rem;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+.login-title {
+  text-align: center;
+  margin-bottom: 0.5rem !important;
+  font-weight: 700 !important;
+  color: #333 !important;
+}
+
+.login-subtitle {
+  text-align: center;
+  margin-bottom: 2rem !important;
+  color: #666 !important;
+}
+
+.login-error {
+  margin-bottom: 1.5rem !important;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-field {
+  width: 100%;
+}
+
+.login-button {
+  margin-top: 1rem !important;
+  padding: 1rem !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  border-radius: 12px !important;
+  text-transform: none !important;
+}
+
+.demo-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.demo-button {
+  flex: 1;
+  padding: 0.75rem 1.5rem !important;
+  border-radius: 8px !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .login-branding {
+    padding: 1.5rem;
+  }
+
+  .branding-content {
+    max-width: 500px;
+  }
+}
+
+@media (max-width: 960px) {
+  .login-page {
+    flex-direction: column;
+  }
+
+  .login-branding {
+    min-height: 40vh;
+    padding: 1rem;
+  }
+
+  .branding-title {
+    font-size: 2rem !important;
+  }
+
+  .features-grid {
+    margin-top: 1rem;
+  }
+
+  .feature-card {
+    padding: 1rem;
+  }
+
+  .login-form-container {
+    min-height: 60vh;
+    padding: 1rem;
+  }
+
+  .login-form-paper {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .branding-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .branding-icon {
+    margin-right: 0;
+    margin-bottom: 0.5rem;
+  }
+
+  .features-grid .MuiGrid-item {
+    padding: 0.5rem !important;
+  }
+
+  .demo-buttons {
+    flex-direction: column;
+  }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-form-paper {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.feature-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.feature-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.feature-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.feature-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.feature-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
