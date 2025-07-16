@@ -1,247 +1,439 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import {
+  SmartToy as AIIcon,
+  Analytics as AnalyticsIcon,
+  Assignment as AssignmentIcon,
+  EventNote as AttendanceIcon,
+  CheckCircle as CheckIcon,
+  MenuBook as CourseIcon,
+  Grade as GradeIcon,
+  Message as MessageIcon,
+  Notifications as NotificationIcon,
+  Schedule as ScheduleIcon,
+  School as SchoolIcon,
+  Star as StarIcon,
+  People as StudentsIcon,
+  School as TeacherIcon,
+  AccessTime as TimeIcon,
+  TrendingUp as TrendingUpIcon,
+  Warning as WarningIcon,
+} from '@mui/icons-material';
+import {
+  Alert,
+  Avatar,
   Box,
-  Grid,
+  Button,
   Card,
   CardContent,
-  Typography,
-  Button,
-  Avatar,
   Chip,
-  LinearProgress,
   CircularProgress,
-  Alert,
+  Divider,
+  Grid,
+  LinearProgress,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Divider,
   Paper,
+  Typography,
 } from '@mui/material';
-import {
-  School as TeacherIcon,
-  School as SchoolIcon,
-  Assignment as AssignmentIcon,
-  Grade as GradeIcon,
-  People as StudentsIcon,
-  Schedule as ScheduleIcon,
-  Analytics as AnalyticsIcon,
-  Message as MessageIcon,
-  SmartToy as AIIcon,
-  MenuBook as CourseIcon,
-  EventNote as AttendanceIcon,
-  Star as StarIcon,
-  TrendingUp as TrendingUpIcon,
-  AccessTime as TimeIcon,
-  Notifications as NotificationIcon,
-  CheckCircle as CheckIcon,
-  Warning as WarningIcon,
-} from '@mui/icons-material';
+import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import DashboardLayout from '../../components/layout/DashboardLayout.js';
+import teacherService from '../../services/teacherService.js';
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const [loading, setLoading] = useState(true);
-  const [dashboardData, setDashboardData] = useState({});
+  const [dashboardData, setDashboardData] = useState({
+    assignments: [],
+    students: [],
+    statistics: {
+      totalStudents: 0,
+      totalClasses: 0,
+      avgAttendance: 0,
+      pendingGrades: 0,
+    },
+    recentActivities: [],
+    upcomingClasses: [],
+  });
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    loadDashboardData();
-  }, []);
+    if (user?.email) {
+      loadDashboardData();
+    }
+  }, [user]);
 
   const loadDashboardData = async () => {
     setLoading(true);
+    setError('');
+
     try {
-      // Simulate loading dashboard data with class-based filtering
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      console.log('🔄 Loading teacher dashboard data for:', user.email);
 
-      // Get teacher's assigned classes from localStorage or API
-      const teacherAssignments = {
-        teacherId: user?.email || 'sarah.johnson@school.edu',
-        assignedClasses: [
-          {
-            id: 'MATH10A',
-            name: 'Math 10A',
-            grade: '10',
-            section: 'A',
-            subject: 'Mathematics',
-            students: [
-              { id: 'STU001', name: 'Emma Thompson', rollNo: 15 },
-              { id: 'STU002', name: 'John Smith', rollNo: 16 },
-              { id: 'STU003', name: 'Sarah Wilson', rollNo: 17 },
-              // ... more students
-            ],
-          },
-          {
-            id: 'MATH10B',
-            name: 'Math 10B',
-            grade: '10',
-            section: 'B',
-            subject: 'Mathematics',
-            students: [
-              { id: 'STU025', name: 'Michael Johnson', rollNo: 12 },
-              { id: 'STU026', name: 'Lisa Brown', rollNo: 13 },
-              // ... more students
-            ],
-          },
-          {
-            id: 'ALG11A',
-            name: 'Algebra 11A',
-            grade: '11',
-            section: 'A',
-            subject: 'Advanced Mathematics',
-            students: [
-              { id: 'STU050', name: 'David Lee', rollNo: 8 },
-              { id: 'STU051', name: 'Maria Garcia', rollNo: 9 },
-              // ... more students
-            ],
-          },
-        ],
-      };
+      const data = await teacherService.getTeacherDashboard(user.email);
+      setDashboardData(data);
 
-      // Calculate total students from assigned classes only
-      const totalAssignedStudents = teacherAssignments.assignedClasses.reduce(
-        (total, cls) => total + cls.students.length,
-        0
-      );
-
-      setDashboardData({
-        teacherAssignments,
-        classes: teacherAssignments.assignedClasses.map((cls) => ({
-          id: cls.id,
-          name: cls.name,
-          students: cls.students.length,
-          nextClass: getNextClassTime(cls.name),
-          room: getClassRoom(cls.name),
-          grade: cls.grade,
-          section: cls.section,
-          subject: cls.subject,
-        })),
-        stats: {
-          totalStudents: totalAssignedStudents,
-          assignedClasses: teacherAssignments.assignedClasses.length,
-          pendingGrades: 15,
-          upcomingClasses: 3,
-          unreadMessages: 4,
-        },
-        recentActivity: [
-          {
-            type: 'assignment',
-            text: `15 students from Math 10A submitted Quiz 3`,
-            time: '2 hours ago',
-          },
-          {
-            type: 'message',
-            text: "New message from Parent - Mrs. Thompson (Emma's mother)",
-            time: '3 hours ago',
-          },
-          {
-            type: 'grade',
-            text: 'Grades published for Math 10B Chapter 5 Test',
-            time: '1 day ago',
-          },
-        ],
-        upcomingTasks: [
-          {
-            task: 'Grade Math 10A Quiz 3',
-            due: 'Today 5:00 PM',
-            priority: 'high',
-            class: 'Math 10A',
-          },
-          {
-            task: 'Prepare lesson plan for Algebra 11A',
-            due: 'Tomorrow',
-            priority: 'medium',
-            class: 'Algebra 11A',
-          },
-          {
-            task: 'Parent-teacher conference - Emma Thompson',
-            due: 'Friday 3:00 PM',
-            priority: 'normal',
-            class: 'Math 10A',
-          },
-        ],
+      console.log('✅ Teacher dashboard loaded successfully:', {
+        classes: data.assignments.length,
+        students: data.students.length,
+        statistics: data.statistics,
       });
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
+      console.error('❌ Error loading teacher dashboard:', error);
+      if (
+        error.message.includes('Network Error') ||
+        error.message.includes('ERR_CONNECTION_REFUSED')
+      ) {
+        setError(
+          'Backend server is currently unavailable. Displaying sample data for demonstration purposes.'
+        );
+      } else {
+        setError(`Failed to load dashboard data: ${error.message}`);
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // Helper functions for class scheduling
-  const getNextClassTime = (className) => {
-    const schedule = {
-      'Math 10A': '09:00 AM',
-      'Math 10B': '11:00 AM',
-      'Algebra 11A': '02:00 PM',
-    };
-    return schedule[className] || 'TBD';
-  };
+  const renderQuickStats = () => (
+    <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid item xs={12} sm={6} md={3}>
+        <Card>
+          <CardContent sx={{ textAlign: 'center' }}>
+            <Avatar
+              sx={{
+                bgcolor: '#1976d2',
+                mx: 'auto',
+                mb: 1,
+                width: 48,
+                height: 48,
+              }}
+            >
+              <StudentsIcon />
+            </Avatar>
+            <Typography
+              variant="h4"
+              sx={{ fontWeight: 'bold', color: '#1976d2' }}
+            >
+              {dashboardData.statistics.totalStudents}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Total Students
+            </Typography>
+          </CardContent>
+        </Card>
+      </Grid>
+      <Grid item xs={12} sm={6} md={3}>
+        <Card>
+          <CardContent sx={{ textAlign: 'center' }}>
+            <Avatar
+              sx={{
+                bgcolor: '#4caf50',
+                mx: 'auto',
+                mb: 1,
+                width: 48,
+                height: 48,
+              }}
+            >
+              <CourseIcon />
+            </Avatar>
+            <Typography
+              variant="h4"
+              sx={{ fontWeight: 'bold', color: '#4caf50' }}
+            >
+              {dashboardData.statistics.totalClasses}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Assigned Classes
+            </Typography>
+          </CardContent>
+        </Card>
+      </Grid>
+      <Grid item xs={12} sm={6} md={3}>
+        <Card>
+          <CardContent sx={{ textAlign: 'center' }}>
+            <Avatar
+              sx={{
+                bgcolor: '#ff9800',
+                mx: 'auto',
+                mb: 1,
+                width: 48,
+                height: 48,
+              }}
+            >
+              <AttendanceIcon />
+            </Avatar>
+            <Typography
+              variant="h4"
+              sx={{ fontWeight: 'bold', color: '#ff9800' }}
+            >
+              {dashboardData.statistics.avgAttendance}%
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Avg Attendance
+            </Typography>
+          </CardContent>
+        </Card>
+      </Grid>
+      <Grid item xs={12} sm={6} md={3}>
+        <Card>
+          <CardContent sx={{ textAlign: 'center' }}>
+            <Avatar
+              sx={{
+                bgcolor: '#f44336',
+                mx: 'auto',
+                mb: 1,
+                width: 48,
+                height: 48,
+              }}
+            >
+              <GradeIcon />
+            </Avatar>
+            <Typography
+              variant="h4"
+              sx={{ fontWeight: 'bold', color: '#f44336' }}
+            >
+              {dashboardData.statistics.pendingGrades}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Pending Grades
+            </Typography>
+          </CardContent>
+        </Card>
+      </Grid>
+    </Grid>
+  );
 
-  const getClassRoom = (className) => {
-    const rooms = {
-      'Math 10A': 'Room 101',
-      'Math 10B': 'Room 101',
-      'Algebra 11A': 'Room 203',
-    };
-    return rooms[className] || 'TBD';
-  };
+  const renderAssignedClasses = () => (
+    <Card sx={{ mb: 4 }}>
+      <CardContent>
+        <Typography
+          variant="h6"
+          gutterBottom
+          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+        >
+          <CourseIcon />
+          My Assigned Classes ({dashboardData.assignments.length})
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          Classes assigned to you by the administration. Students are
+          automatically displayed based on these assignments.
+        </Typography>
+        <Grid container spacing={2}>
+          {dashboardData.assignments.map((assignment, index) => (
+            <Grid item xs={12} sm={6} md={4} key={assignment.id || index}>
+              <Paper sx={{ p: 2, bgcolor: 'rgba(25, 118, 210, 0.04)' }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                  {assignment.className}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {assignment.grade} - Section {assignment.section}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Subject: {assignment.subject}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Room: {assignment.room}
+                </Typography>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mt: 1,
+                  }}
+                >
+                  <Chip
+                    size="small"
+                    label={`${assignment.studentCount} Students`}
+                    color="primary"
+                    variant="outlined"
+                  />
+                  <Typography variant="caption" color="text.secondary">
+                    {assignment.schedule}
+                  </Typography>
+                </Box>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+      </CardContent>
+    </Card>
+  );
 
-  const quickActions = [
-    {
-      title: 'AI Teaching Assistant',
-      description: 'Get help with lesson planning and content creation',
-      icon: AIIcon,
-      color: '#1976d2',
-      path: '/dashboard/teacher/ai-assistant',
-    },
-    {
-      title: 'Messages',
-      description: 'Communicate with students, parents, and colleagues',
-      icon: MessageIcon,
-      color: '#4caf50',
-      path: '/dashboard/teacher/messages',
-    },
-    {
-      title: 'Gradebook',
-      description: 'Manage grades and assessments',
-      icon: GradeIcon,
-      color: '#ff9800',
-      path: '/dashboard/teacher/grades',
-    },
-    {
-      title: 'My Classes',
-      description: 'View and manage your classes',
-      icon: CourseIcon,
-      color: '#9c27b0',
-      path: '/dashboard/teacher/courses',
-    },
-    {
-      title: 'Assignments',
-      description: 'Create and manage assignments',
-      icon: AssignmentIcon,
-      color: '#f44336',
-      path: '/dashboard/teacher/assignments',
-    },
-    {
-      title: 'Student Management',
-      description: 'View student information and progress',
-      icon: StudentsIcon,
-      color: '#795548',
-      path: '/dashboard/teacher/students',
-    },
-    {
-      title: 'Attendance',
-      description: 'Track student attendance',
-      icon: AttendanceIcon,
-      color: '#607d8b',
-      path: '/dashboard/teacher/attendance',
-    },
-  ];
+  const renderAssignedStudents = () => (
+    <Card sx={{ mb: 4 }}>
+      <CardContent>
+        <Typography
+          variant="h6"
+          gutterBottom
+          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+        >
+          <StudentsIcon />
+          My Students ({dashboardData.students.length})
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          Students automatically assigned to your classes. No manual enrollment
+          needed.
+        </Typography>
+        {dashboardData.students.length === 0 ? (
+          <Typography color="text.secondary">
+            No students currently assigned to your classes.
+          </Typography>
+        ) : (
+          <Grid container spacing={2}>
+            {dashboardData.students.slice(0, 8).map((student, index) => (
+              <Grid item xs={12} sm={6} md={3} key={student.id || index}>
+                <Paper sx={{ p: 2, bgcolor: 'rgba(76, 175, 80, 0.04)' }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                    {`${student.user?.firstName || ''} ${
+                      student.user?.lastName || ''
+                    }`.trim()}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                  >
+                    ID: {student.studentId}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                  >
+                    Class: {student.className}
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      mt: 1,
+                    }}
+                  >
+                    <Chip
+                      size="small"
+                      label={student.overallGrade || 'N/A'}
+                      color="primary"
+                      variant="outlined"
+                    />
+                    <Typography variant="caption" color="text.secondary">
+                      {student.attendance || 0}% Attendance
+                    </Typography>
+                  </Box>
+                </Paper>
+              </Grid>
+            ))}
+            {dashboardData.students.length > 8 && (
+              <Grid item xs={12}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ textAlign: 'center', mt: 2 }}
+                >
+                  And {dashboardData.students.length - 8} more students...
+                </Typography>
+              </Grid>
+            )}
+          </Grid>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const renderRecentActivities = () => (
+    <Card>
+      <CardContent>
+        <Typography
+          variant="h6"
+          gutterBottom
+          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+        >
+          <NotificationIcon />
+          Recent Activities
+        </Typography>
+        <List>
+          {dashboardData.recentActivities.map((activity, index) => (
+            <ListItem key={index} sx={{ px: 0 }}>
+              <ListItemIcon>
+                {activity.type === 'assignment' && (
+                  <AssignmentIcon color="primary" />
+                )}
+                {activity.type === 'attendance' && (
+                  <AttendanceIcon color="success" />
+                )}
+                {activity.type === 'grade' && <GradeIcon color="warning" />}
+              </ListItemIcon>
+              <ListItemText
+                primary={activity.text}
+                secondary={`${activity.time} • ${activity.class}`}
+              />
+            </ListItem>
+          ))}
+        </List>
+      </CardContent>
+    </Card>
+  );
+
+  const renderQuickActions = () => (
+    <Card sx={{ mb: 4 }}>
+      <CardContent>
+        <Typography variant="h6" gutterBottom>
+          Quick Actions
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={<GradeIcon />}
+              onClick={() => navigate('/teacher/gradebook')}
+              sx={{ mb: 1 }}
+            >
+              Grade Book
+            </Button>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={<AttendanceIcon />}
+              onClick={() => navigate('/admin/attendance')}
+              sx={{ mb: 1 }}
+            >
+              Take Attendance
+            </Button>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={<AssignmentIcon />}
+              onClick={() => navigate('/admin/assignments')}
+              sx={{ mb: 1 }}
+            >
+              Assignments
+            </Button>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={<AIIcon />}
+              onClick={() => navigate('/teacher/ai-assistant')}
+              sx={{ mb: 1 }}
+            >
+              AI Assistant
+            </Button>
+          </Grid>
+        </Grid>
+      </CardContent>
+    </Card>
+  );
 
   if (loading) {
     return (
@@ -252,347 +444,62 @@ const TeacherDashboard = () => {
             justifyContent: 'center',
             alignItems: 'center',
             minHeight: '60vh',
+            flexDirection: 'column',
+            gap: 2,
           }}
         >
-          <CircularProgress />
+          <CircularProgress size={60} />
+          <Typography variant="h6" color="text.secondary">
+            Loading Teacher Dashboard...
+          </Typography>
         </Box>
       </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout>
+    <DashboardLayout title="Teacher Dashboard">
       <Box sx={{ p: 3 }}>
-        {/* Welcome Section */}
+        {/* Header */}
         <Box sx={{ mb: 4 }}>
           <Typography
             variant="h4"
             sx={{ fontWeight: 'bold', color: '#1976d2', mb: 1 }}
           >
-            👨‍🏫 Teacher Dashboard
+            🎓 Teacher Dashboard
           </Typography>
           <Typography variant="h6" color="text.secondary">
-            Welcome back, {user?.firstName || 'Teacher'}! Ready to inspire and
-            educate? Here's your teaching dashboard.
+            Welcome back, {user?.firstName || 'Teacher'}! Manage your classes
+            and students.
           </Typography>
         </Box>
 
+        {/* Error Alert */}
+        {error && (
+          <Alert severity="warning" sx={{ mb: 3 }} onClose={() => setError('')}>
+            {error}
+          </Alert>
+        )}
+
         {/* Quick Stats */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent sx={{ textAlign: 'center' }}>
-                <Avatar
-                  sx={{
-                    bgcolor: '#1976d2',
-                    mx: 'auto',
-                    mb: 1,
-                    width: 48,
-                    height: 48,
-                  }}
-                >
-                  <StudentsIcon />
-                </Avatar>
-                <Typography
-                  variant="h4"
-                  sx={{ fontWeight: 'bold', color: '#1976d2' }}
-                >
-                  {dashboardData.stats?.totalStudents}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Total Students
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent sx={{ textAlign: 'center' }}>
-                <Avatar
-                  sx={{
-                    bgcolor: '#ff9800',
-                    mx: 'auto',
-                    mb: 1,
-                    width: 48,
-                    height: 48,
-                  }}
-                >
-                  <GradeIcon />
-                </Avatar>
-                <Typography
-                  variant="h4"
-                  sx={{ fontWeight: 'bold', color: '#ff9800' }}
-                >
-                  {dashboardData.stats?.pendingGrades}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Pending Grades
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent sx={{ textAlign: 'center' }}>
-                <Avatar
-                  sx={{
-                    bgcolor: '#4caf50',
-                    mx: 'auto',
-                    mb: 1,
-                    width: 48,
-                    height: 48,
-                  }}
-                >
-                  <ScheduleIcon />
-                </Avatar>
-                <Typography
-                  variant="h4"
-                  sx={{ fontWeight: 'bold', color: '#4caf50' }}
-                >
-                  {dashboardData.stats?.upcomingClasses}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Classes Today
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent sx={{ textAlign: 'center' }}>
-                <Avatar
-                  sx={{
-                    bgcolor: '#9c27b0',
-                    mx: 'auto',
-                    mb: 1,
-                    width: 48,
-                    height: 48,
-                  }}
-                >
-                  <MessageIcon />
-                </Avatar>
-                <Typography
-                  variant="h4"
-                  sx={{ fontWeight: 'bold', color: '#9c27b0' }}
-                >
-                  {dashboardData.stats?.unreadMessages}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  New Messages
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+        {renderQuickStats()}
 
         {/* Quick Actions */}
-        <Card sx={{ mb: 4 }}>
-          <CardContent>
-            <Typography
-              variant="h6"
-              gutterBottom
-              sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-            >
-              <StarIcon />
-              Quick Actions
-            </Typography>
-            <Grid container spacing={2}>
-              {quickActions.map((action, index) => (
-                <Grid item xs={12} sm={6} md={3} key={index}>
-                  <Card
-                    sx={{
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: 4,
-                      },
-                    }}
-                    onClick={() => navigate(action.path)}
-                  >
-                    <CardContent sx={{ textAlign: 'center', py: 3 }}>
-                      <Avatar
-                        sx={{
-                          bgcolor: action.color,
-                          mx: 'auto',
-                          mb: 2,
-                          width: 56,
-                          height: 56,
-                        }}
-                      >
-                        <action.icon sx={{ fontSize: 28 }} />
-                      </Avatar>
-                      <Typography
-                        variant="h6"
-                        sx={{ fontWeight: 'bold', mb: 1 }}
-                      >
-                        {action.title}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {action.description}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </CardContent>
-        </Card>
+        {renderQuickActions()}
 
+        {/* Main Content Grid */}
         <Grid container spacing={3}>
-          {/* Today's Classes */}
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardContent>
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-                >
-                  <ScheduleIcon />
-                  Today's Classes
-                </Typography>
-                <List>
-                  {dashboardData.classes?.map((cls, index) => (
-                    <ListItem key={index} sx={{ px: 0 }}>
-                      <ListItemIcon>
-                        <Avatar
-                          sx={{ bgcolor: '#1976d2', width: 40, height: 40 }}
-                        >
-                          <SchoolIcon />
-                        </Avatar>
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={cls.name}
-                        secondary={
-                          <Box>
-                            <Typography variant="body2">
-                              {cls.students} students • {cls.room}
-                            </Typography>
-                            <Typography variant="caption" color="primary.main">
-                              Next: {cls.nextClass}
-                            </Typography>
-                          </Box>
-                        }
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  sx={{ mt: 2 }}
-                  onClick={() => navigate('/dashboard/teacher/courses')}
-                >
-                  View All Classes
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Recent Activity */}
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardContent>
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-                >
-                  <NotificationIcon />
-                  Recent Activity
-                </Typography>
-                <List>
-                  {dashboardData.recentActivity?.map((activity, index) => (
-                    <ListItem key={index} sx={{ px: 0 }}>
-                      <ListItemIcon>
-                        <Avatar
-                          sx={{
-                            bgcolor:
-                              activity.type === 'assignment'
-                                ? '#4caf50'
-                                : activity.type === 'message'
-                                ? '#2196f3'
-                                : '#ff9800',
-                            width: 32,
-                            height: 32,
-                          }}
-                        >
-                          {activity.type === 'assignment' ? (
-                            <AssignmentIcon fontSize="small" />
-                          ) : activity.type === 'message' ? (
-                            <MessageIcon fontSize="small" />
-                          ) : (
-                            <GradeIcon fontSize="small" />
-                          )}
-                        </Avatar>
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={activity.text}
-                        secondary={activity.time}
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Upcoming Tasks */}
           <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-                >
-                  <TimeIcon />
-                  Upcoming Tasks
-                </Typography>
-                <List>
-                  {dashboardData.upcomingTasks?.map((task, index) => (
-                    <ListItem key={index} sx={{ px: 0 }}>
-                      <ListItemIcon>
-                        <Avatar
-                          sx={{
-                            bgcolor:
-                              task.priority === 'high'
-                                ? '#f44336'
-                                : task.priority === 'medium'
-                                ? '#ff9800'
-                                : '#4caf50',
-                            width: 32,
-                            height: 32,
-                          }}
-                        >
-                          {task.priority === 'high' ? (
-                            <WarningIcon fontSize="small" />
-                          ) : (
-                            <CheckIcon fontSize="small" />
-                          )}
-                        </Avatar>
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={task.task}
-                        secondary={`Due: ${task.due}`}
-                      />
-                      <Chip
-                        label={task.priority}
-                        size="small"
-                        color={
-                          task.priority === 'high'
-                            ? 'error'
-                            : task.priority === 'medium'
-                            ? 'warning'
-                            : 'success'
-                        }
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              </CardContent>
-            </Card>
+            {/* Assigned Classes */}
+            {renderAssignedClasses()}
+          </Grid>
+          <Grid item xs={12}>
+            {/* Assigned Students */}
+            {renderAssignedStudents()}
+          </Grid>
+          <Grid item xs={12}>
+            {/* Recent Activities */}
+            {renderRecentActivities()}
           </Grid>
         </Grid>
       </Box>

@@ -1,110 +1,112 @@
-import React, { useState, useEffect, useRef } from 'react';
 import {
+  SmartToy as AIIcon,
+  Add as AddIcon,
+  Assignment as AssignmentIcon,
+  EventNote as AttendanceIcon,
+  CalendarToday as CalendarIcon,
+  Delete as DeleteIcon,
+  Business as DepartmentIcon,
+  Download as DownloadIcon,
+  Edit as EditIcon,
+  Email as EmailIcon,
+  Assessment as GradeIcon,
+  Group as GroupIcon,
+  Timeline as PerformanceIcon,
+  Person as PersonIcon,
+  Phone as PhoneIcon,
+  Schedule as ScheduleIcon,
+  School as SchoolIcon,
+  Search as SearchIcon,
+  Star as StarIcon,
+  MenuBook as SubjectIcon,
+  TrendingDown as TrendingDownIcon,
+  TrendingUp as TrendingUpIcon,
+  Upload as UploadIcon,
+  Visibility as ViewIcon,
+  Work as WorkIcon,
+} from "@mui/icons-material";
+import {
+  Alert,
+  Autocomplete,
+  Avatar,
   Box,
-  Grid,
+  Button,
   Card,
   CardContent,
-  Typography,
-  Button,
-  TextField,
+  Chip,
+  CircularProgress,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  FormHelperText,
+  Grid,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  LinearProgress,
+  MenuItem,
+  Paper,
+  Rating,
+  Select,
+  Step,
+  StepLabel,
+  Stepper,
+  Tab,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  IconButton,
-  Avatar,
-  Chip,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-  InputAdornment,
-  Tooltip,
-  Alert,
-  CircularProgress,
-  Tab,
   Tabs,
-  LinearProgress,
-  Stepper,
-  Step,
-  StepLabel,
-  Rating,
-  Autocomplete,
-  FormHelperText,
-} from '@mui/material';
-import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Search as SearchIcon,
-  Download as DownloadIcon,
-  Upload as UploadIcon,
-  Visibility as ViewIcon,
-  School as SchoolIcon,
-  Email as EmailIcon,
-  Phone as PhoneIcon,
-  CalendarToday as CalendarIcon,
-  TrendingUp as TrendingUpIcon,
-  TrendingDown as TrendingDownIcon,
-  Star as StarIcon,
-  Group as GroupIcon,
-  Assignment as AssignmentIcon,
-  Person as PersonIcon,
-  Work as WorkIcon,
-  Schedule as ScheduleIcon,
-  Assessment as GradeIcon,
-  EventNote as AttendanceIcon,
-  SmartToy as AIIcon,
-  Business as DepartmentIcon,
-  MenuBook as SubjectIcon,
-  Timeline as PerformanceIcon,
-} from '@mui/icons-material';
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import React, { useState, useEffect, useRef } from "react";
 
-import DashboardLayout from '../../components/layout/DashboardLayout.js';
-import teacherService from '../../services/teacherService.js';
+import DashboardLayout from "../../components/layout/DashboardLayout.js";
+import teacherService from "../../services/teacherService.js";
+import idConfigurationService from "../../services/idConfigurationService.js";
+import masterDataService from "../../services/masterDataService.js";
 
 const TeacherManagement = () => {
   const [teachers, setTeachers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [departmentFilter, setDepartmentFilter] = useState('');
-  const [employmentTypeFilter, setEmploymentTypeFilter] = useState('');
-  const [subjectFilter, setSubjectFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [departmentFilter, setDepartmentFilter] = useState("");
+  const [employmentTypeFilter, setEmploymentTypeFilter] = useState("");
+  const [subjectFilter, setSubjectFilter] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedTeacher, setSelectedTeacher] = useState(null);
-  const [dialogMode, setDialogMode] = useState('add'); // 'add', 'edit', 'view'
+  const [dialogMode, setDialogMode] = useState("add"); // 'add', 'edit', 'view'
   const [currentTab, setCurrentTab] = useState(0);
   const [activeStep, setActiveStep] = useState(0);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   // Form state
   const [formData, setFormData] = useState({
     // Personal Information
     user: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      dateOfBirth: '',
-      gender: '',
-      address: '',
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      dateOfBirth: "",
+      gender: "",
+      address: "",
     },
     // Professional Information
-    employeeId: '',
-    department: '',
+    employeeId: "",
+    department: "",
     subjects: [],
-    qualification: '',
+    qualification: "",
     experienceYears: 0,
-    joiningDate: '',
-    employmentType: 'FULL_TIME',
+    joiningDate: "",
+    employmentType: "FULL_TIME",
     // Performance Metrics (will be calculated)
     performanceScore: 0,
     studentRating: 0,
@@ -117,60 +119,88 @@ const TeacherManagement = () => {
   // Form validation state
   const [formErrors, setFormErrors] = useState({});
 
+  // Auto-generated ID state
+  const [autoGeneratedEmployeeId, setAutoGeneratedEmployeeId] = useState("");
+
+  // Master data states
+  const [masterData, setMasterData] = useState({
+    departments: [],
+    employmentTypes: [],
+  });
+
   // For import functionality
   const fileInputRef = useRef(null);
 
-  const departments = [
-    'Mathematics',
-    'English',
-    'Science',
-    'Social Studies',
-    'Computer Science',
-    'Physics',
-    'Chemistry',
-    'Biology',
-    'History',
-    'Geography',
-    'Languages',
-    'Physical Education',
-    'Art',
-    'Music',
-    'Library',
-    'Administration',
-  ];
-
+  // Static arrays that don't change frequently
   const subjects = [
-    'Mathematics',
-    'English Literature',
-    'English Language',
-    'Physics',
-    'Chemistry',
-    'Biology',
-    'History',
-    'Geography',
-    'Computer Science',
-    'Physical Education',
-    'Art',
-    'Music',
-    'French',
-    'Spanish',
-    'Economics',
-    'Psychology',
-    'Sociology',
+    "Mathematics",
+    "English Literature",
+    "English Language",
+    "Physics",
+    "Chemistry",
+    "Biology",
+    "History",
+    "Geography",
+    "Computer Science",
+    "Physical Education",
+    "Art",
+    "Music",
+    "French",
+    "Spanish",
+    "Economics",
+    "Psychology",
+    "Sociology",
   ];
 
-  const employmentTypes = ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'SUBSTITUTE'];
-  const genders = ['MALE', 'FEMALE', 'OTHER'];
+  const genders = ["MALE", "FEMALE", "OTHER"];
   const enrollmentSteps = [
-    'Personal Info',
-    'Professional Details',
-    'Subjects & Skills',
-    'Performance Setup',
+    "Personal Info",
+    "Professional Details",
+    "Subjects & Skills",
+    "Performance Setup",
   ];
 
   useEffect(() => {
     loadTeachers();
+    loadMasterData();
   }, []);
+
+  const loadMasterData = async () => {
+    try {
+      const [departmentOptions, employmentTypeOptions] = await Promise.all([
+        masterDataService.getDepartmentOptions(),
+        masterDataService.getEmploymentTypeOptions(),
+      ]);
+
+      setMasterData({
+        departments: departmentOptions,
+        employmentTypes: employmentTypeOptions,
+      });
+    } catch (error) {
+      console.error("Error loading master data:", error);
+      // Use fallback data if master data service fails
+      setMasterData({
+        departments: [
+          { value: "MATH", label: "Mathematics" },
+          { value: "ENG", label: "English" },
+          { value: "SCI", label: "Science" },
+          { value: "SS", label: "Social Studies" },
+          { value: "CS", label: "Computer Science" },
+          { value: "PE", label: "Physical Education" },
+          { value: "ART", label: "Art" },
+          { value: "LANG", label: "Languages" },
+          { value: "LIB", label: "Library" },
+          { value: "ADMIN", label: "Administration" },
+        ],
+        employmentTypes: [
+          { value: "FULL_TIME", label: "Full Time" },
+          { value: "PART_TIME", label: "Part Time" },
+          { value: "CONTRACT", label: "Contract" },
+          { value: "SUBSTITUTE", label: "Substitute" },
+        ],
+      });
+    }
+  };
 
   const loadTeachers = async () => {
     try {
@@ -179,8 +209,8 @@ const TeacherManagement = () => {
       setTeachers(teachersData);
       setLoading(false);
     } catch (error) {
-      console.error('Error loading teachers:', error);
-      setError('Failed to load teachers: ' + error.message);
+      console.error("Error loading teachers:", error);
+      setError(`Failed to load teachers: ${error.message}`);
       setLoading(false);
     }
   };
@@ -190,32 +220,37 @@ const TeacherManagement = () => {
   };
 
   const handleAddTeacher = () => {
-    setDialogMode('add');
+    setDialogMode("add");
     setSelectedTeacher(null);
     setActiveStep(0);
     resetFormData();
     setFormErrors({});
+    setAutoGeneratedEmployeeId("");
     setOpenDialog(true);
+    // Generate employee ID after dialog opens
+    setTimeout(() => {
+      generateEmployeeId();
+    }, 100);
   };
 
   const resetFormData = () => {
     setFormData({
       user: {
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        dateOfBirth: '',
-        gender: '',
-        address: '',
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        dateOfBirth: "",
+        gender: "",
+        address: "",
       },
-      employeeId: '',
-      department: '',
+      employeeId: "",
+      department: "",
       subjects: [],
-      qualification: '',
+      qualification: "",
       experienceYears: 0,
-      joiningDate: '',
-      employmentType: 'FULL_TIME',
+      joiningDate: "",
+      employmentType: "FULL_TIME",
       performanceScore: 0,
       studentRating: 0,
       classesAssigned: 0,
@@ -226,18 +261,18 @@ const TeacherManagement = () => {
   };
 
   const handleEditTeacher = (teacher) => {
-    setDialogMode('edit');
+    setDialogMode("edit");
     setSelectedTeacher(teacher);
     setActiveStep(0);
     setFormData({
       user: teacher.user || {},
-      employeeId: teacher.employeeId || '',
-      department: teacher.department || '',
+      employeeId: teacher.employeeId || "",
+      department: teacher.department || "",
       subjects: teacher.subjects || [],
-      qualification: teacher.qualification || '',
+      qualification: teacher.qualification || "",
       experienceYears: teacher.experienceYears || 0,
-      joiningDate: teacher.joiningDate || '',
-      employmentType: teacher.employmentType || 'FULL_TIME',
+      joiningDate: teacher.joiningDate || "",
+      employmentType: teacher.employmentType || "FULL_TIME",
       performanceScore: teacher.performanceScore || 0,
       studentRating: teacher.studentRating || 0,
       classesAssigned: teacher.classesAssigned || 0,
@@ -250,65 +285,66 @@ const TeacherManagement = () => {
   };
 
   const handleViewTeacher = (teacher) => {
-    setDialogMode('view');
+    setDialogMode("view");
     setSelectedTeacher(teacher);
     setCurrentTab(0);
     setOpenDialog(true);
   };
 
   const handleDeleteTeacher = async (teacherId) => {
-    if (window.confirm('Are you sure you want to delete this teacher?')) {
+    if (window.confirm("Are you sure you want to delete this teacher?")) {
       try {
         await teacherService.deleteTeacher(teacherId);
         setTeachers(teachers.filter((t) => t.id !== teacherId));
-        setSuccess('Teacher deleted successfully!');
-        setTimeout(() => setSuccess(''), 3000);
+        setSuccess("Teacher deleted successfully!");
+        setTimeout(() => setSuccess(""), 3000);
       } catch (error) {
-        setError('Failed to delete teacher: ' + error.message);
-        setTimeout(() => setError(''), 3000);
+        setError(`Failed to delete teacher: ${error.message}`);
+        setTimeout(() => setError(""), 3000);
       }
     }
   };
 
   // --- FORM VALIDATION ---
   const validateStep = (step) => {
-    let errors = {};
+    const errors = {};
     if (step === 0) {
       if (!formData.user.firstName)
-        errors['user.firstName'] = 'First name is required';
+        errors["user.firstName"] = "First name is required";
       if (!formData.user.lastName)
-        errors['user.lastName'] = 'Last name is required';
-      if (!formData.user.email) errors['user.email'] = 'Email is required';
+        errors["user.lastName"] = "Last name is required";
+      if (!formData.user.email) errors["user.email"] = "Email is required";
       else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(formData.user.email))
-        errors['user.email'] = 'Invalid email';
+        errors["user.email"] = "Invalid email";
       if (!formData.user.dateOfBirth)
-        errors['user.dateOfBirth'] = 'Date of birth is required';
-      if (!formData.user.gender) errors['user.gender'] = 'Gender is required';
+        errors["user.dateOfBirth"] = "Date of birth is required";
+      if (!formData.user.gender) errors["user.gender"] = "Gender is required";
     }
     if (step === 1) {
-      if (!formData.employeeId)
-        errors['employeeId'] = 'Employee ID is required';
-      if (!formData.department) errors['department'] = 'Department is required';
+      // Auto-generated field validation - only check in edit mode if missing
+      if (dialogMode === "edit" && !formData.employeeId)
+        errors.employeeId = "Employee ID is missing";
+      if (!formData.department) errors.department = "Department is required";
       if (!formData.employmentType)
-        errors['employmentType'] = 'Employment type is required';
+        errors.employmentType = "Employment type is required";
       if (!formData.joiningDate)
-        errors['joiningDate'] = 'Joining date is required';
+        errors.joiningDate = "Joining date is required";
       if (!formData.qualification)
-        errors['qualification'] = 'Qualification is required';
+        errors.qualification = "Qualification is required";
     }
     if (step === 2) {
       if (!formData.subjects || formData.subjects.length === 0)
-        errors['subjects'] = 'At least one subject is required';
+        errors.subjects = "At least one subject is required";
     }
     if (step === 3) {
       if (formData.performanceScore < 0 || formData.performanceScore > 100)
-        errors['performanceScore'] = 'Score must be 0-100';
+        errors.performanceScore = "Score must be 0-100";
       if (formData.studentRating < 0 || formData.studentRating > 5)
-        errors['studentRating'] = 'Rating must be 0-5';
+        errors.studentRating = "Rating must be 0-5";
       if (formData.classesAssigned < 0)
-        errors['classesAssigned'] = 'Cannot be negative';
+        errors.classesAssigned = "Cannot be negative";
       if (formData.totalStudents < 0)
-        errors['totalStudents'] = 'Cannot be negative';
+        errors.totalStudents = "Cannot be negative";
     }
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -329,51 +365,50 @@ const TeacherManagement = () => {
 
   // Helper function that returns errors instead of setting state
   const validateStepAndReturn = (step) => {
-    let errors = {};
+    const errors = {};
     if (step === 0) {
       if (!formData.user.firstName)
-        errors['user.firstName'] = 'First name is required';
+        errors["user.firstName"] = "First name is required";
       if (!formData.user.lastName)
-        errors['user.lastName'] = 'Last name is required';
-      if (!formData.user.email) errors['user.email'] = 'Email is required';
+        errors["user.lastName"] = "Last name is required";
+      if (!formData.user.email) errors["user.email"] = "Email is required";
       else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(formData.user.email))
-        errors['user.email'] = 'Invalid email';
+        errors["user.email"] = "Invalid email";
       if (!formData.user.dateOfBirth)
-        errors['user.dateOfBirth'] = 'Date of birth is required';
-      if (!formData.user.gender) errors['user.gender'] = 'Gender is required';
+        errors["user.dateOfBirth"] = "Date of birth is required";
+      if (!formData.user.gender) errors["user.gender"] = "Gender is required";
     }
     if (step === 1) {
-      if (!formData.employeeId)
-        errors['employeeId'] = 'Employee ID is required';
-      if (!formData.department) errors['department'] = 'Department is required';
+      if (!formData.employeeId) errors.employeeId = "Employee ID is required";
+      if (!formData.department) errors.department = "Department is required";
       if (!formData.employmentType)
-        errors['employmentType'] = 'Employment type is required';
+        errors.employmentType = "Employment type is required";
       if (!formData.joiningDate)
-        errors['joiningDate'] = 'Joining date is required';
+        errors.joiningDate = "Joining date is required";
       if (!formData.qualification)
-        errors['qualification'] = 'Qualification is required';
+        errors.qualification = "Qualification is required";
     }
     if (step === 2) {
       if (!formData.subjects || formData.subjects.length === 0)
-        errors['subjects'] = 'At least one subject is required';
+        errors.subjects = "At least one subject is required";
     }
     if (step === 3) {
       if (formData.performanceScore < 0 || formData.performanceScore > 100)
-        errors['performanceScore'] = 'Score must be 0-100';
+        errors.performanceScore = "Score must be 0-100";
       if (formData.studentRating < 0 || formData.studentRating > 5)
-        errors['studentRating'] = 'Rating must be 0-5';
+        errors.studentRating = "Rating must be 0-5";
       if (formData.classesAssigned < 0)
-        errors['classesAssigned'] = 'Cannot be negative';
+        errors.classesAssigned = "Cannot be negative";
       if (formData.totalStudents < 0)
-        errors['totalStudents'] = 'Cannot be negative';
+        errors.totalStudents = "Cannot be negative";
     }
     return errors;
   };
 
   const handleSaveTeacher = async () => {
     if (!validateAll()) {
-      setError('Please fix the errors in the form before saving.');
-      setTimeout(() => setError(''), 3000);
+      setError("Please fix the errors in the form before saving.");
+      setTimeout(() => setError(""), 3000);
       return;
     }
     try {
@@ -384,33 +419,33 @@ const TeacherManagement = () => {
         attendanceRate: formData.attendanceRate || 100.0,
       };
 
-      if (dialogMode === 'add') {
+      if (dialogMode === "add") {
         const newTeacher = await teacherService.createTeacher(teacherData);
         setTeachers([...teachers, newTeacher]);
-        setSuccess('Teacher added successfully!');
-      } else if (dialogMode === 'edit') {
+        setSuccess("Teacher added successfully!");
+      } else if (dialogMode === "edit") {
         const updatedTeacher = await teacherService.updateTeacher(
           selectedTeacher.id,
-          teacherData
+          teacherData,
         );
         const updatedTeachers = teachers.map((t) =>
-          t.id === selectedTeacher.id ? updatedTeacher : t
+          t.id === selectedTeacher.id ? updatedTeacher : t,
         );
         setTeachers(updatedTeachers);
-        setSuccess('Teacher updated successfully!');
+        setSuccess("Teacher updated successfully!");
       }
 
       setOpenDialog(false);
-      setTimeout(() => setSuccess(''), 3000);
+      setTimeout(() => setSuccess(""), 3000);
     } catch (error) {
-      setError('Failed to save teacher: ' + error.message);
-      setTimeout(() => setError(''), 3000);
+      setError(`Failed to save teacher: ${error.message}`);
+      setTimeout(() => setError(""), 3000);
     }
   };
 
   const handleFormChange = (field, value) => {
-    if (field.includes('.')) {
-      const [parent, child] = field.split('.');
+    if (field.includes(".")) {
+      const [parent, child] = field.split(".");
       setFormData((prev) => ({
         ...prev,
         [parent]: {
@@ -425,6 +460,30 @@ const TeacherManagement = () => {
         [field]: value,
       }));
       setFormErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  // Auto-generate employee ID
+  const generateEmployeeId = async () => {
+    try {
+      const employeeIdPreview = await idConfigurationService.previewNextId("EMPLOYEE_ID");
+      const employeeId = employeeIdPreview.nextId || `EMP${new Date().getFullYear()}${String(Math.floor(Math.random() * 999) + 1).padStart(3, '0')}`;
+
+      setAutoGeneratedEmployeeId(employeeId);
+      setFormData(prev => ({
+        ...prev,
+        employeeId,
+      }));
+
+    } catch (error) {
+      console.error("Error generating Employee ID:", error);
+      // Fallback to simple generation if backend is not available
+      const fallbackEmployeeId = `EMP${new Date().getFullYear()}${String(Math.floor(Math.random() * 999) + 1).padStart(3, '0')}`;
+      setAutoGeneratedEmployeeId(fallbackEmployeeId);
+      setFormData(prev => ({
+        ...prev,
+        employeeId: fallbackEmployeeId,
+      }));
     }
   };
 
@@ -452,8 +511,7 @@ const TeacherManagement = () => {
     const matchesEmploymentType =
       !employmentTypeFilter || teacher.employmentType === employmentTypeFilter;
     const matchesSubject =
-      !subjectFilter ||
-      (teacher.subjects && teacher.subjects.includes(subjectFilter));
+      !subjectFilter || teacher.subjects?.includes(subjectFilter);
 
     return (
       matchesSearch &&
@@ -464,33 +522,33 @@ const TeacherManagement = () => {
   });
 
   const getPerformanceColor = (score) => {
-    if (score >= 90) return '#4caf50';
-    if (score >= 80) return '#8bc34a';
-    if (score >= 70) return '#ff9800';
-    return '#f44336';
+    if (score >= 90) return "#4caf50";
+    if (score >= 80) return "#8bc34a";
+    if (score >= 70) return "#ff9800";
+    return "#f44336";
   };
 
   const getPerformanceLevel = (score) => {
-    if (score >= 90) return 'Excellent';
-    if (score >= 80) return 'Good';
-    if (score >= 70) return 'Average';
-    return 'Needs Improvement';
+    if (score >= 90) return "Excellent";
+    if (score >= 80) return "Good";
+    if (score >= 70) return "Average";
+    return "Needs Improvement";
   };
 
   // --- EXPORT/IMPORT FUNCTIONALITY ---
   const handleExport = () => {
     const dataStr = JSON.stringify(teachers, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
+    const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'teachers_export.json';
+    a.download = "teachers_export.json";
     a.click();
     URL.revokeObjectURL(url);
   };
 
   const handleImportClick = () => {
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = "";
     fileInputRef.current?.click();
   };
 
@@ -501,10 +559,10 @@ const TeacherManagement = () => {
     reader.onload = async (event) => {
       try {
         const imported = JSON.parse(event.target.result);
-        if (!Array.isArray(imported)) throw new Error('Invalid file format');
+        if (!Array.isArray(imported)) throw new Error("Invalid file format");
         // Optionally, validate structure of each teacher object
         // Save each teacher (could be optimized)
-        let importedTeachers = [];
+        const importedTeachers = [];
         for (const t of imported) {
           // Remove id if present to avoid conflicts
           const { id, ...teacherData } = t;
@@ -516,11 +574,11 @@ const TeacherManagement = () => {
           }
         }
         setTeachers((prev) => [...prev, ...importedTeachers]);
-        setSuccess('Teachers imported successfully!');
-        setTimeout(() => setSuccess(''), 3000);
+        setSuccess("Teachers imported successfully!");
+        setTimeout(() => setSuccess(""), 3000);
       } catch (err) {
-        setError('Failed to import: ' + err.message);
-        setTimeout(() => setError(''), 3000);
+        setError(`Failed to import: ${err.message}`);
+        setTimeout(() => setError(""), 3000);
       }
     };
     reader.readAsText(file);
@@ -530,53 +588,53 @@ const TeacherManagement = () => {
     <Grid container spacing={3} sx={{ mb: 3 }}>
       {[
         {
-          title: 'Total Teachers',
+          title: "Total Teachers",
           value: teachers.length,
           icon: PersonIcon,
-          color: '#2196f3',
+          color: "#2196f3",
         },
         {
-          title: 'Active Teachers',
-          value: teachers.filter((t) => t.employmentType === 'FULL_TIME')
+          title: "Active Teachers",
+          value: teachers.filter((t) => t.employmentType === "FULL_TIME")
             .length,
           icon: WorkIcon,
-          color: '#4caf50',
+          color: "#4caf50",
         },
         {
-          title: 'Departments',
+          title: "Departments",
           value: new Set(teachers.map((t) => t.department)).size,
           icon: DepartmentIcon,
-          color: '#ff9800',
+          color: "#ff9800",
         },
         {
-          title: 'High Performers',
+          title: "High Performers",
           value: teachers.filter((t) => t.performanceScore >= 90).length,
           icon: StarIcon,
-          color: '#9c27b0',
+          color: "#9c27b0",
         },
       ].map((stat, index) => (
         <Grid item xs={12} sm={6} lg={3} key={index}>
           <Card
             sx={{
-              background: 'linear-gradient(135deg, #fff 0%, #f8f9fa 100%)',
-              border: '1px solid #e0e0e0',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-              transition: 'transform 0.3s ease',
-              '&:hover': { transform: 'translateY(-4px)' },
+              background: "linear-gradient(135deg, #fff 0%, #f8f9fa 100%)",
+              border: "1px solid #e0e0e0",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+              transition: "transform 0.3s ease",
+              "&:hover": { transform: "translateY(-4px)" },
             }}
           >
             <CardContent>
               <Box
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                 }}
               >
                 <Box>
                   <Typography
                     variant="h4"
-                    sx={{ fontWeight: 'bold', color: stat.color }}
+                    sx={{ fontWeight: "bold", color: stat.color }}
                   >
                     {stat.value}
                   </Typography>
@@ -607,11 +665,11 @@ const TeacherManagement = () => {
                   label="First Name"
                   value={formData.user.firstName}
                   onChange={(e) =>
-                    handleFormChange('user.firstName', e.target.value)
+                    handleFormChange("user.firstName", e.target.value)
                   }
                   required
-                  error={!!formErrors['user.firstName']}
-                  helperText={formErrors['user.firstName']}
+                  error={!!formErrors["user.firstName"]}
+                  helperText={formErrors["user.firstName"]}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -620,11 +678,11 @@ const TeacherManagement = () => {
                   label="Last Name"
                   value={formData.user.lastName}
                   onChange={(e) =>
-                    handleFormChange('user.lastName', e.target.value)
+                    handleFormChange("user.lastName", e.target.value)
                   }
                   required
-                  error={!!formErrors['user.lastName']}
-                  helperText={formErrors['user.lastName']}
+                  error={!!formErrors["user.lastName"]}
+                  helperText={formErrors["user.lastName"]}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -634,11 +692,11 @@ const TeacherManagement = () => {
                   type="email"
                   value={formData.user.email}
                   onChange={(e) =>
-                    handleFormChange('user.email', e.target.value)
+                    handleFormChange("user.email", e.target.value)
                   }
                   required
-                  error={!!formErrors['user.email']}
-                  helperText={formErrors['user.email']}
+                  error={!!formErrors["user.email"]}
+                  helperText={formErrors["user.email"]}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -647,7 +705,7 @@ const TeacherManagement = () => {
                   label="Phone"
                   value={formData.user.phone}
                   onChange={(e) =>
-                    handleFormChange('user.phone', e.target.value)
+                    handleFormChange("user.phone", e.target.value)
                   }
                 />
               </Grid>
@@ -658,21 +716,21 @@ const TeacherManagement = () => {
                   type="date"
                   value={formData.user.dateOfBirth}
                   onChange={(e) =>
-                    handleFormChange('user.dateOfBirth', e.target.value)
+                    handleFormChange("user.dateOfBirth", e.target.value)
                   }
                   InputLabelProps={{ shrink: true }}
                   required
-                  error={!!formErrors['user.dateOfBirth']}
-                  helperText={formErrors['user.dateOfBirth']}
+                  error={!!formErrors["user.dateOfBirth"]}
+                  helperText={formErrors["user.dateOfBirth"]}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormControl fullWidth error={!!formErrors['user.gender']}>
+                <FormControl fullWidth error={!!formErrors["user.gender"]}>
                   <InputLabel>Gender</InputLabel>
                   <Select
                     value={formData.user.gender}
                     onChange={(e) =>
-                      handleFormChange('user.gender', e.target.value)
+                      handleFormChange("user.gender", e.target.value)
                     }
                     required
                   >
@@ -682,8 +740,8 @@ const TeacherManagement = () => {
                       </MenuItem>
                     ))}
                   </Select>
-                  {formErrors['user.gender'] && (
-                    <FormHelperText>{formErrors['user.gender']}</FormHelperText>
+                  {formErrors["user.gender"] && (
+                    <FormHelperText>{formErrors["user.gender"]}</FormHelperText>
                   )}
                 </FormControl>
               </Grid>
@@ -695,7 +753,7 @@ const TeacherManagement = () => {
                   rows={3}
                   value={formData.user.address}
                   onChange={(e) =>
-                    handleFormChange('user.address', e.target.value)
+                    handleFormChange("user.address", e.target.value)
                   }
                 />
               </Grid>
@@ -708,57 +766,63 @@ const TeacherManagement = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Employee ID"
+                  label="Employee ID (Auto-Generated)"
                   value={formData.employeeId}
+                  disabled={true}
                   onChange={(e) =>
-                    handleFormChange('employeeId', e.target.value)
+                    handleFormChange("employeeId", e.target.value)
                   }
                   required
-                  error={!!formErrors['employeeId']}
-                  helperText={formErrors['employeeId']}
+                  error={!!formErrors.employeeId}
+                  helperText={dialogMode === "add" ? "Auto-generated unique employee ID" : "Employee ID cannot be modified once generated"}
+                  InputProps={{
+                    style: {
+                      backgroundColor: "#f5f5f5",
+                      fontFamily: "monospace",
+                      fontWeight: "bold",
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormControl fullWidth error={!!formErrors['department']}>
+                <FormControl fullWidth error={!!formErrors.department}>
                   <InputLabel>Department</InputLabel>
                   <Select
                     value={formData.department}
                     onChange={(e) =>
-                      handleFormChange('department', e.target.value)
+                      handleFormChange("department", e.target.value)
                     }
                     required
                   >
-                    {departments.map((dept) => (
-                      <MenuItem key={dept} value={dept}>
-                        {dept}
+                    {masterData.departments.map((dept) => (
+                      <MenuItem key={dept.value} value={dept.value}>
+                        {dept.label}
                       </MenuItem>
                     ))}
                   </Select>
-                  {formErrors['department'] && (
-                    <FormHelperText>{formErrors['department']}</FormHelperText>
+                  {formErrors.department && (
+                    <FormHelperText>{formErrors.department}</FormHelperText>
                   )}
                 </FormControl>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormControl fullWidth error={!!formErrors['employmentType']}>
+                <FormControl fullWidth error={!!formErrors.employmentType}>
                   <InputLabel>Employment Type</InputLabel>
                   <Select
                     value={formData.employmentType}
                     onChange={(e) =>
-                      handleFormChange('employmentType', e.target.value)
+                      handleFormChange("employmentType", e.target.value)
                     }
                     required
                   >
-                    {employmentTypes.map((type) => (
-                      <MenuItem key={type} value={type}>
-                        {type.replace('_', ' ')}
+                    {masterData.employmentTypes.map((type) => (
+                      <MenuItem key={type.value} value={type.value}>
+                        {type.label}
                       </MenuItem>
                     ))}
                   </Select>
-                  {formErrors['employmentType'] && (
-                    <FormHelperText>
-                      {formErrors['employmentType']}
-                    </FormHelperText>
+                  {formErrors.employmentType && (
+                    <FormHelperText>{formErrors.employmentType}</FormHelperText>
                   )}
                 </FormControl>
               </Grid>
@@ -769,12 +833,12 @@ const TeacherManagement = () => {
                   type="date"
                   value={formData.joiningDate}
                   onChange={(e) =>
-                    handleFormChange('joiningDate', e.target.value)
+                    handleFormChange("joiningDate", e.target.value)
                   }
                   InputLabelProps={{ shrink: true }}
                   required
-                  error={!!formErrors['joiningDate']}
-                  helperText={formErrors['joiningDate']}
+                  error={!!formErrors.joiningDate}
+                  helperText={formErrors.joiningDate}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -783,12 +847,12 @@ const TeacherManagement = () => {
                   label="Qualification"
                   value={formData.qualification}
                   onChange={(e) =>
-                    handleFormChange('qualification', e.target.value)
+                    handleFormChange("qualification", e.target.value)
                   }
                   placeholder="e.g., M.A. in Mathematics, B.Ed."
                   required
-                  error={!!formErrors['qualification']}
-                  helperText={formErrors['qualification']}
+                  error={!!formErrors.qualification}
+                  helperText={formErrors.qualification}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -798,7 +862,7 @@ const TeacherManagement = () => {
                   type="number"
                   value={formData.experienceYears}
                   onChange={(e) =>
-                    handleFormChange('experienceYears', Number(e.target.value))
+                    handleFormChange("experienceYears", Number(e.target.value))
                   }
                   inputProps={{ min: 0, max: 50 }}
                 />
@@ -810,7 +874,7 @@ const TeacherManagement = () => {
           return (
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <Typography variant="h6" sx={{ mb: 2, color: '#1976d2' }}>
+                <Typography variant="h6" sx={{ mb: 2, color: "#1976d2" }}>
                   Subject Specializations
                 </Typography>
               </Grid>
@@ -820,7 +884,7 @@ const TeacherManagement = () => {
                   options={subjects}
                   value={formData.subjects}
                   onChange={(event, newValue) => {
-                    handleFormChange('subjects', newValue);
+                    handleFormChange("subjects", newValue);
                   }}
                   renderTags={(value, getTagProps) =>
                     value.map((option, index) => (
@@ -838,10 +902,10 @@ const TeacherManagement = () => {
                       label="Subjects Taught"
                       placeholder="Select subjects..."
                       helperText={
-                        formErrors['subjects'] ||
-                        'Select all subjects this teacher can teach'
+                        formErrors.subjects ||
+                        "Select all subjects this teacher can teach"
                       }
-                      error={!!formErrors['subjects']}
+                      error={!!formErrors.subjects}
                     />
                   )}
                 />
@@ -863,7 +927,7 @@ const TeacherManagement = () => {
           return (
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <Typography variant="h6" sx={{ mb: 2, color: '#1976d2' }}>
+                <Typography variant="h6" sx={{ mb: 2, color: "#1976d2" }}>
                   Initial Performance Setup
                 </Typography>
                 <Typography
@@ -882,11 +946,11 @@ const TeacherManagement = () => {
                   type="number"
                   value={formData.classesAssigned}
                   onChange={(e) =>
-                    handleFormChange('classesAssigned', Number(e.target.value))
+                    handleFormChange("classesAssigned", Number(e.target.value))
                   }
                   inputProps={{ min: 0 }}
-                  error={!!formErrors['classesAssigned']}
-                  helperText={formErrors['classesAssigned']}
+                  error={!!formErrors.classesAssigned}
+                  helperText={formErrors.classesAssigned}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -896,11 +960,11 @@ const TeacherManagement = () => {
                   type="number"
                   value={formData.totalStudents}
                   onChange={(e) =>
-                    handleFormChange('totalStudents', Number(e.target.value))
+                    handleFormChange("totalStudents", Number(e.target.value))
                   }
                   inputProps={{ min: 0 }}
-                  error={!!formErrors['totalStudents']}
-                  helperText={formErrors['totalStudents']}
+                  error={!!formErrors.totalStudents}
+                  helperText={formErrors.totalStudents}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -910,14 +974,14 @@ const TeacherManagement = () => {
                   type="number"
                   value={formData.performanceScore}
                   onChange={(e) =>
-                    handleFormChange('performanceScore', Number(e.target.value))
+                    handleFormChange("performanceScore", Number(e.target.value))
                   }
                   inputProps={{ min: 0, max: 100 }}
                   helperText={
-                    formErrors['performanceScore'] ||
-                    'Initial performance score (0-100)'
+                    formErrors.performanceScore ||
+                    "Initial performance score (0-100)"
                   }
-                  error={!!formErrors['performanceScore']}
+                  error={!!formErrors.performanceScore}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -927,14 +991,13 @@ const TeacherManagement = () => {
                   type="number"
                   value={formData.studentRating}
                   onChange={(e) =>
-                    handleFormChange('studentRating', Number(e.target.value))
+                    handleFormChange("studentRating", Number(e.target.value))
                   }
                   inputProps={{ min: 0, max: 5, step: 0.1 }}
                   helperText={
-                    formErrors['studentRating'] ||
-                    'Initial student rating (0-5)'
+                    formErrors.studentRating || "Initial student rating (0-5)"
                   }
-                  error={!!formErrors['studentRating']}
+                  error={!!formErrors.studentRating}
                 />
               </Grid>
             </Grid>
@@ -957,7 +1020,7 @@ const TeacherManagement = () => {
 
         {renderStepContent(activeStep)}
 
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 4 }}>
           <Button disabled={activeStep === 0} onClick={handleStepBack}>
             Back
           </Button>
@@ -968,7 +1031,7 @@ const TeacherManagement = () => {
                 onClick={handleStepNext}
                 sx={{
                   background:
-                    'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
+                    "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
                 }}
               >
                 Next
@@ -979,10 +1042,10 @@ const TeacherManagement = () => {
                 onClick={handleSaveTeacher}
                 sx={{
                   background:
-                    'linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)',
+                    "linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)",
                 }}
               >
-                {dialogMode === 'add' ? 'Add Teacher' : 'Save Changes'}
+                {dialogMode === "add" ? "Add Teacher" : "Save Changes"}
               </Button>
             )}
           </Box>
@@ -997,31 +1060,31 @@ const TeacherManagement = () => {
       onClose={() => setOpenDialog(false)}
       maxWidth="lg"
       fullWidth
-      sx={{ '& .MuiDialog-paper': { minHeight: '80vh' } }}
+      sx={{ "& .MuiDialog-paper": { minHeight: "80vh" } }}
     >
       <DialogTitle
         sx={{
-          background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
-          color: 'white',
-          display: 'flex',
-          alignItems: 'center',
+          background: "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
+          color: "white",
+          display: "flex",
+          alignItems: "center",
           gap: 1,
         }}
       >
         <WorkIcon />
-        {dialogMode === 'add'
-          ? 'Add New Teacher'
-          : dialogMode === 'edit'
-          ? 'Edit Teacher Information'
-          : 'Teacher Profile'}
+        {dialogMode === "add"
+          ? "Add New Teacher"
+          : dialogMode === "edit"
+            ? "Edit Teacher Information"
+            : "Teacher Profile"}
       </DialogTitle>
 
       <DialogContent sx={{ pt: 3, pb: 3, px: 4 }}>
-        {dialogMode === 'view' && selectedTeacher ? (
+        {dialogMode === "view" && selectedTeacher ? (
           <Box>
             <Typography variant="h6">Teacher Details</Typography>
             <Typography>
-              Name: {selectedTeacher.user?.firstName}{' '}
+              Name: {selectedTeacher.user?.firstName}{" "}
               {selectedTeacher.user?.lastName}
             </Typography>
             <Typography>Email: {selectedTeacher.user?.email}</Typography>
@@ -1032,7 +1095,7 @@ const TeacherManagement = () => {
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="subtitle2">Subjects:</Typography>
                   <Box
-                    sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}
+                    sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1 }}
                   >
                     {selectedTeacher.subjects.map((subject) => (
                       <Chip key={subject} label={subject} size="small" />
@@ -1048,16 +1111,16 @@ const TeacherManagement = () => {
 
       <DialogActions sx={{ p: 3 }}>
         <Button onClick={() => setOpenDialog(false)}>
-          {dialogMode === 'view' ? 'Close' : 'Cancel'}
+          {dialogMode === "view" ? "Close" : "Cancel"}
         </Button>
-        {dialogMode === 'view' && (
+        {dialogMode === "view" && (
           <Button
             onClick={() => {
               handleEditTeacher(selectedTeacher);
             }}
             variant="contained"
             sx={{
-              background: 'linear-gradient(135deg, #ff9800 0%, #ffa726 100%)',
+              background: "linear-gradient(135deg, #ff9800 0%, #ffa726 100%)",
               px: 3,
             }}
           >
@@ -1073,11 +1136,11 @@ const TeacherManagement = () => {
       <DashboardLayout title="Teacher Management">
         <Box
           sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '60vh',
-            flexDirection: 'column',
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "60vh",
+            flexDirection: "column",
             gap: 2,
           }}
         >
@@ -1097,7 +1160,7 @@ const TeacherManagement = () => {
         <Box sx={{ mb: 4 }}>
           <Typography
             variant="h4"
-            sx={{ fontWeight: 'bold', color: '#1976d2', mb: 1 }}
+            sx={{ fontWeight: "bold", color: "#1976d2", mb: 1 }}
           >
             👩‍🏫 Teacher Management
           </Typography>
@@ -1110,14 +1173,14 @@ const TeacherManagement = () => {
         {success && (
           <Alert
             severity="success"
-            sx={{ mb: 3, backgroundColor: '#e8f5e8' }}
-            onClose={() => setSuccess('')}
+            sx={{ mb: 3, backgroundColor: "#e8f5e8" }}
+            onClose={() => setSuccess("")}
           >
             {success}
           </Alert>
         )}
         {error && (
-          <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError('')}>
+          <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError("")}>
             {error}
           </Alert>
         )}
@@ -1153,9 +1216,9 @@ const TeacherManagement = () => {
                     onChange={(e) => setDepartmentFilter(e.target.value)}
                   >
                     <MenuItem value="">All Departments</MenuItem>
-                    {departments.map((dept) => (
-                      <MenuItem key={dept} value={dept}>
-                        {dept}
+                    {masterData.departments.map((dept) => (
+                      <MenuItem key={dept.value} value={dept.value}>
+                        {dept.label}
                       </MenuItem>
                     ))}
                   </Select>
@@ -1170,9 +1233,9 @@ const TeacherManagement = () => {
                     onChange={(e) => setEmploymentTypeFilter(e.target.value)}
                   >
                     <MenuItem value="">All Types</MenuItem>
-                    {employmentTypes.map((type) => (
-                      <MenuItem key={type} value={type}>
-                        {type.replace('_', ' ')}
+                    {masterData.employmentTypes.map((type) => (
+                      <MenuItem key={type.value} value={type.value}>
+                        {type.label}
                       </MenuItem>
                     ))}
                   </Select>
@@ -1181,7 +1244,7 @@ const TeacherManagement = () => {
 
               <Grid item xs={12} md={5}>
                 <Box
-                  sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}
+                  sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}
                 >
                   <Button
                     variant="outlined"
@@ -1203,7 +1266,7 @@ const TeacherManagement = () => {
                     type="file"
                     accept="application/json"
                     ref={fileInputRef}
-                    style={{ display: 'none' }}
+                    style={{ display: "none" }}
                     onChange={handleImport}
                   />
                   <Button
@@ -1212,7 +1275,7 @@ const TeacherManagement = () => {
                     onClick={handleAddTeacher}
                     sx={{
                       background:
-                        'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
+                        "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
                     }}
                   >
                     Add Teacher
@@ -1229,21 +1292,21 @@ const TeacherManagement = () => {
             <TableContainer component={Paper} elevation={0}>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Teacher</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
+                  <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
+                    <TableCell sx={{ fontWeight: "bold" }}>Teacher</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
                       Employee ID
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
+                    <TableCell sx={{ fontWeight: "bold" }}>
                       Department
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Subjects</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>
+                    <TableCell sx={{ fontWeight: "bold" }}>Subjects</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
                       Performance
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Rating</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Classes</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Actions</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Rating</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Classes</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -1251,31 +1314,31 @@ const TeacherManagement = () => {
                     <TableRow
                       key={teacher.id}
                       sx={{
-                        '&:hover': { backgroundColor: '#f8f9fa' },
-                        transition: 'background-color 0.3s ease',
+                        "&:hover": { backgroundColor: "#f8f9fa" },
+                        transition: "background-color 0.3s ease",
                       }}
                     >
                       <TableCell>
                         <Box
-                          sx={{ display: 'flex', alignItems: 'center', gap: 2 }}
+                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
                         >
-                          <Avatar sx={{ bgcolor: '#1976d2' }}>
-                            {teacher.user?.firstName?.[0] || 'T'}
-                            {teacher.user?.lastName?.[0] || 'E'}
+                          <Avatar sx={{ bgcolor: "#1976d2" }}>
+                            {teacher.user?.firstName?.[0] || "T"}
+                            {teacher.user?.lastName?.[0] || "E"}
                           </Avatar>
                           <Box>
                             <Typography
                               variant="subtitle2"
-                              sx={{ fontWeight: 'bold' }}
+                              sx={{ fontWeight: "bold" }}
                             >
-                              {teacher.user?.firstName || 'N/A'}{' '}
-                              {teacher.user?.lastName || ''}
+                              {teacher.user?.firstName || "N/A"}{" "}
+                              {teacher.user?.lastName || ""}
                             </Typography>
                             <Typography
                               variant="caption"
                               color="text.secondary"
                             >
-                              {teacher.user?.email || 'No email'}
+                              {teacher.user?.email || "No email"}
                             </Typography>
                           </Box>
                         </Box>
@@ -1284,15 +1347,15 @@ const TeacherManagement = () => {
                       <TableCell>
                         <Typography
                           variant="body2"
-                          sx={{ fontFamily: 'monospace', fontWeight: 'bold' }}
+                          sx={{ fontFamily: "monospace", fontWeight: "bold" }}
                         >
-                          {teacher.employeeId || 'N/A'}
+                          {teacher.employeeId || "N/A"}
                         </Typography>
                       </TableCell>
 
                       <TableCell>
                         <Chip
-                          label={teacher.department || 'N/A'}
+                          label={teacher.department || "N/A"}
                           size="small"
                           color="primary"
                           variant="outlined"
@@ -1301,7 +1364,7 @@ const TeacherManagement = () => {
 
                       <TableCell>
                         <Box
-                          sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}
+                          sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}
                         >
                           {teacher.subjects && teacher.subjects.length > 0 ? (
                             teacher.subjects
@@ -1312,7 +1375,7 @@ const TeacherManagement = () => {
                                   label={subject}
                                   size="small"
                                   variant="outlined"
-                                  sx={{ fontSize: '0.75rem' }}
+                                  sx={{ fontSize: "0.75rem" }}
                                 />
                               ))
                           ) : (
@@ -1339,9 +1402,9 @@ const TeacherManagement = () => {
                           <Typography
                             variant="body2"
                             sx={{
-                              fontWeight: 'bold',
+                              fontWeight: "bold",
                               color: getPerformanceColor(
-                                teacher.performanceScore || 0
+                                teacher.performanceScore || 0,
                               ),
                             }}
                           >
@@ -1354,9 +1417,9 @@ const TeacherManagement = () => {
                               mt: 0.5,
                               height: 4,
                               borderRadius: 2,
-                              '& .MuiLinearProgress-bar': {
+                              "& .MuiLinearProgress-bar": {
                                 backgroundColor: getPerformanceColor(
-                                  teacher.performanceScore || 0
+                                  teacher.performanceScore || 0,
                                 ),
                               },
                             }}
@@ -1367,8 +1430,8 @@ const TeacherManagement = () => {
                       <TableCell>
                         <Box
                           sx={{
-                            display: 'flex',
-                            alignItems: 'center',
+                            display: "flex",
+                            alignItems: "center",
                             gap: 0.5,
                           }}
                         >
@@ -1388,7 +1451,7 @@ const TeacherManagement = () => {
                         <Box>
                           <Typography
                             variant="body2"
-                            sx={{ fontWeight: 'bold' }}
+                            sx={{ fontWeight: "bold" }}
                           >
                             {teacher.classesAssigned || 0}
                           </Typography>
@@ -1399,12 +1462,12 @@ const TeacherManagement = () => {
                       </TableCell>
 
                       <TableCell>
-                        <Box sx={{ display: 'flex', gap: 0.5 }}>
+                        <Box sx={{ display: "flex", gap: 0.5 }}>
                           <Tooltip title="View Profile">
                             <IconButton
                               size="small"
                               onClick={() => handleViewTeacher(teacher)}
-                              sx={{ color: '#1976d2' }}
+                              sx={{ color: "#1976d2" }}
                             >
                               <ViewIcon fontSize="small" />
                             </IconButton>
@@ -1414,7 +1477,7 @@ const TeacherManagement = () => {
                             <IconButton
                               size="small"
                               onClick={() => handleEditTeacher(teacher)}
-                              sx={{ color: '#ff9800' }}
+                              sx={{ color: "#ff9800" }}
                             >
                               <EditIcon fontSize="small" />
                             </IconButton>
@@ -1424,7 +1487,7 @@ const TeacherManagement = () => {
                             <IconButton
                               size="small"
                               onClick={() => handleDeleteTeacher(teacher.id)}
-                              sx={{ color: '#f44336' }}
+                              sx={{ color: "#f44336" }}
                             >
                               <DeleteIcon fontSize="small" />
                             </IconButton>

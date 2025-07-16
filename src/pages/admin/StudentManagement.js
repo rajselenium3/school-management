@@ -1,297 +1,404 @@
-import React, { useState, useEffect, useRef } from 'react'
 import {
+  SmartToy as AIIcon,
+  Add as AddIcon,
+  Assignment as AssignmentIcon,
+  EventNote as AttendanceIcon,
+  CalendarToday as CalendarIcon,
+  Delete as DeleteIcon,
+  Download as DownloadIcon,
+  Edit as EditIcon,
+  Email as EmailIcon,
+  FamilyRestroom as FamilyIcon,
+  Assessment as GradeIcon,
+  Group as GroupIcon,
+  LocalHospital as MedicalIcon,
+  Person as PersonIcon,
+  Phone as PhoneIcon,
+  School as SchoolIcon,
+  Search as SearchIcon,
+  Star as StarIcon,
+  TrendingDown as TrendingDownIcon,
+  TrendingUp as TrendingUpIcon,
+  Upload as UploadIcon,
+  Visibility as ViewIcon,
+} from "@mui/icons-material";
+import {
+  Alert,
+  Avatar,
   Box,
-  Grid,
+  Button,
   Card,
   CardContent,
-  Typography,
-  Button,
-  TextField,
+  Chip,
+  CircularProgress,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  FormHelperText,
+  Grid,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  LinearProgress,
+  MenuItem,
+  Paper,
+  Select,
+  Step,
+  StepLabel,
+  Stepper,
+  Tab,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  IconButton,
-  Avatar,
-  Chip,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-  InputAdornment,
-  Tooltip,
-  Alert,
-  CircularProgress,
-  Tab,
   Tabs,
-  LinearProgress,
-  Stepper,
-  Step,
-  StepLabel,
-  FormHelperText,
-} from '@mui/material'
-import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Search as SearchIcon,
-  Download as DownloadIcon,
-  Upload as UploadIcon,
-  Visibility as ViewIcon,
-  School as SchoolIcon,
-  Email as EmailIcon,
-  Phone as PhoneIcon,
-  CalendarToday as CalendarIcon,
-  TrendingUp as TrendingUpIcon,
-  TrendingDown as TrendingDownIcon,
-  Star as StarIcon,
-  Group as GroupIcon,
-  Assignment as AssignmentIcon,
-  Person as PersonIcon,
-  Assessment as GradeIcon,
-  EventNote as AttendanceIcon,
-  FamilyRestroom as FamilyIcon,
-  LocalHospital as MedicalIcon,
-  SmartToy as AIIcon,
-} from '@mui/icons-material'
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import React, { useState, useEffect, useRef } from "react";
 
-import DashboardLayout from '../../components/layout/DashboardLayout.js'
-import studentService from '../../services/studentService.js'
+import DashboardLayout from "../../components/layout/DashboardLayout.js";
+import studentService from "../../services/studentService.js";
+import idConfigurationService from "../../services/idConfigurationService.js";
+import masterDataService from "../../services/masterDataService.js";
+import accessCodeService from "../../services/accessCodeService.js";
 
 const StudentManagement = () => {
-  const [students, setStudents] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [gradeFilter, setGradeFilter] = useState('')
-  const [sectionFilter, setSectionFilter] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
-  const [openDialog, setOpenDialog] = useState(false)
-  const [selectedStudent, setSelectedStudent] = useState(null)
-  const [dialogMode, setDialogMode] = useState('add') // 'add', 'edit', 'view'
-  const [currentTab, setCurrentTab] = useState(0)
-  const [activeStep, setActiveStep] = useState(0)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [gradeFilter, setGradeFilter] = useState("");
+  const [sectionFilter, setSectionFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [dialogMode, setDialogMode] = useState("add"); // 'add', 'edit', 'view'
+  const [currentTab, setCurrentTab] = useState(0);
+  const [activeStep, setActiveStep] = useState(0);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   // Form state
   const [formData, setFormData] = useState({
     // Personal Information
     user: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      dateOfBirth: '',
-      gender: '',
-      address: '',
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      dateOfBirth: "",
+      gender: "",
+      address: "",
     },
     // Academic Information
-    studentId: '',
-    grade: '',
-    section: '',
-    rollNumber: '',
-    enrollmentDate: '',
-    admissionNumber: '',
-    academicStatus: 'ACTIVE',
+    studentId: "",
+    grade: "",
+    section: "",
+    rollNumber: "",
+    enrollmentDate: "",
+    admissionNumber: "",
+    academicStatus: "ACTIVE",
     // Parent Information
-    parents: [{
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      relationship: 'FATHER',
-    }],
-    emergencyContact: '',
-    emergencyContactPhone: '',
+    parents: [
+      {
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        relationship: "FATHER",
+      },
+    ],
+    emergencyContact: "",
+    emergencyContactPhone: "",
     // Medical Information
     medicalInfo: {
-      bloodGroup: '',
+      bloodGroup: "",
       allergies: [],
       medications: [],
-      specialNeeds: '',
-      emergencyMedicalContact: '',
+      specialNeeds: "",
+      emergencyMedicalContact: "",
     },
-  })
+  });
 
   // Form validation state
-  const [formErrors, setFormErrors] = useState({})
+  const [formErrors, setFormErrors] = useState({});
+
+  // Auto-generated ID states
+  const [autoGeneratedIds, setAutoGeneratedIds] = useState({
+    studentId: "",
+    admissionNumber: "",
+    rollNumber: "",
+  });
+
+  // Master data states
+  const [masterData, setMasterData] = useState({
+    grades: [],
+    sections: [],
+  });
 
   // Export/Import
-  const fileInputRef = useRef(null)
+  const fileInputRef = useRef(null);
 
-  const grades = ['Pre-K', 'K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
-  const sections = ['A', 'B', 'C', 'D', 'E']
-  const academicStatuses = ['ACTIVE', 'SUSPENDED', 'GRADUATED', 'DROPPED_OUT', 'TRANSFERRED']
-  const genders = ['MALE', 'FEMALE', 'OTHER']
-  const relationships = ['FATHER', 'MOTHER', 'GUARDIAN', 'OTHER']
-  const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
-  const enrollmentSteps = ['Personal Info', 'Academic Details', 'Parent/Guardian', 'Medical Info']
+  // Static arrays that don't change frequently
+  const academicStatuses = [
+    "ACTIVE",
+    "SUSPENDED",
+    "GRADUATED",
+    "DROPPED_OUT",
+    "TRANSFERRED",
+  ];
+  const genders = ["MALE", "FEMALE", "OTHER"];
+  const relationships = ["FATHER", "MOTHER", "GUARDIAN", "OTHER"];
+  const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+  const enrollmentSteps = [
+    "Personal Info",
+    "Academic Details",
+    "Parent/Guardian",
+    "Medical Info",
+  ];
 
   useEffect(() => {
-    loadStudents()
-  }, [])
+    loadStudents();
+    loadMasterData();
+  }, []);
+
+  const loadMasterData = async () => {
+    try {
+      const [gradeOptions, sectionOptions] = await Promise.all([
+        masterDataService.getGradeLevelOptions(),
+        masterDataService.getSectionOptions(),
+      ]);
+
+      setMasterData({
+        grades: gradeOptions,
+        sections: sectionOptions,
+      });
+    } catch (error) {
+      console.error("Error loading master data:", error);
+      // Use fallback data if master data service fails
+      setMasterData({
+        grades: [
+          { value: "Pre-K", label: "Pre-K" },
+          { value: "K", label: "K" },
+          { value: "1", label: "1" },
+          { value: "2", label: "2" },
+          { value: "3", label: "3" },
+          { value: "4", label: "4" },
+          { value: "5", label: "5" },
+          { value: "6", label: "6" },
+          { value: "7", label: "7" },
+          { value: "8", label: "8" },
+          { value: "9", label: "9" },
+          { value: "10", label: "10" },
+          { value: "11", label: "11" },
+          { value: "12", label: "12" },
+        ],
+        sections: [
+          { value: "A", label: "A" },
+          { value: "B", label: "B" },
+          { value: "C", label: "C" },
+          { value: "D", label: "D" },
+          { value: "E", label: "E" },
+        ],
+      });
+    }
+  };
 
   const loadStudents = async () => {
     try {
-      setLoading(true)
-      const studentsData = await studentService.getAllStudents()
-      setStudents(studentsData)
-      setLoading(false)
+      setLoading(true);
+      const studentsData = await studentService.getAllStudents();
+      setStudents(studentsData);
+      setLoading(false);
     } catch (error) {
-      console.error('Error loading students:', error)
-      setError('Failed to load students: ' + error.message)
-      setLoading(false)
+      console.error("Error loading students:", error);
+      setError(`Failed to load students: ${error.message}`);
+      setLoading(false);
     }
-  }
+  };
 
   const handleSearch = (event) => {
-    setSearchTerm(event.target.value)
-  }
+    setSearchTerm(event.target.value);
+  };
 
   const handleAddStudent = () => {
-    setDialogMode('add')
-    setSelectedStudent(null)
-    setActiveStep(0)
-    resetFormData()
-    setFormErrors({})
-    setOpenDialog(true)
-  }
+    setDialogMode("add");
+    setSelectedStudent(null);
+    setActiveStep(0);
+    resetFormData();
+    setFormErrors({});
+    setAutoGeneratedIds({
+      studentId: "",
+      admissionNumber: "",
+      rollNumber: "",
+    });
+    setOpenDialog(true);
+    // Initialize auto-generated IDs after dialog opens
+    setTimeout(() => {
+      initializeAutoGeneratedIds();
+    }, 100);
+  };
 
   const resetFormData = () => {
     setFormData({
       user: {
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        dateOfBirth: '',
-        gender: '',
-        address: '',
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        dateOfBirth: "",
+        gender: "",
+        address: "",
       },
-      studentId: '',
-      grade: '',
-      section: '',
-      rollNumber: '',
-      enrollmentDate: '',
-      admissionNumber: '',
-      academicStatus: 'ACTIVE',
-      parents: [{
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        relationship: 'FATHER',
-      }],
-      emergencyContact: '',
-      emergencyContactPhone: '',
+      studentId: "",
+      grade: "",
+      section: "",
+      rollNumber: "",
+      enrollmentDate: "",
+      admissionNumber: "",
+      academicStatus: "ACTIVE",
+      parents: [
+        {
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          relationship: "FATHER",
+        },
+      ],
+      emergencyContact: "",
+      emergencyContactPhone: "",
       medicalInfo: {
-        bloodGroup: '',
+        bloodGroup: "",
         allergies: [],
         medications: [],
-        specialNeeds: '',
-        emergencyMedicalContact: '',
+        specialNeeds: "",
+        emergencyMedicalContact: "",
       },
-    })
-  }
+    });
+  };
 
   const handleEditStudent = (student) => {
-    setDialogMode('edit')
-    setSelectedStudent(student)
-    setActiveStep(0)
-    setFormErrors({})
+    setDialogMode("edit");
+    setSelectedStudent(student);
+    setActiveStep(0);
+    setFormErrors({});
     setFormData({
       user: student.user || {},
-      studentId: student.studentId || '',
-      grade: student.grade || '',
-      section: student.section || '',
-      rollNumber: student.rollNumber || '',
-      enrollmentDate: student.enrollmentDate || '',
-      admissionNumber: student.admissionNumber || '',
-      academicStatus: student.academicStatus || 'ACTIVE',
-      parents: student.parents || [{ firstName: '', lastName: '', email: '', phone: '', relationship: 'FATHER' }],
-      emergencyContact: student.emergencyContact || '',
-      emergencyContactPhone: student.emergencyContactPhone || '',
+      studentId: student.studentId || "",
+      grade: student.grade || "",
+      section: student.section || "",
+      rollNumber: student.rollNumber || "",
+      enrollmentDate: student.enrollmentDate || "",
+      admissionNumber: student.admissionNumber || "",
+      academicStatus: student.academicStatus || "ACTIVE",
+      parents: student.parents || [
+        {
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          relationship: "FATHER",
+        },
+      ],
+      emergencyContact: student.emergencyContact || "",
+      emergencyContactPhone: student.emergencyContactPhone || "",
       medicalInfo: student.medicalInfo || {
-        bloodGroup: '',
+        bloodGroup: "",
         allergies: [],
         medications: [],
-        specialNeeds: '',
-        emergencyMedicalContact: '',
+        specialNeeds: "",
+        emergencyMedicalContact: "",
       },
-    })
-    setOpenDialog(true)
-  }
+    });
+    setOpenDialog(true);
+  };
 
   const handleViewStudent = (student) => {
-    setDialogMode('view')
-    setSelectedStudent(student)
-    setCurrentTab(0)
-    setOpenDialog(true)
-  }
+    setDialogMode("view");
+    setSelectedStudent(student);
+    setCurrentTab(0);
+    setOpenDialog(true);
+  };
 
   const handleDeleteStudent = async (studentId) => {
-    if (window.confirm('Are you sure you want to delete this student?')) {
+    if (window.confirm("Are you sure you want to delete this student?")) {
       try {
-        await studentService.deleteStudent(studentId)
-        setStudents(students.filter(s => s.id !== studentId))
-        setSuccess('Student deleted successfully!')
-        setTimeout(() => setSuccess(''), 3000)
+        await studentService.deleteStudent(studentId);
+        setStudents(students.filter((s) => s.id !== studentId));
+        setSuccess("Student deleted successfully!");
+        setTimeout(() => setSuccess(""), 3000);
       } catch (error) {
-        setError('Failed to delete student: ' + error.message)
-        setTimeout(() => setError(''), 3000)
+        setError(`Failed to delete student: ${error.message}`);
+        setTimeout(() => setError(""), 3000);
       }
     }
-  }
+  };
 
   // Form validation logic
   const validateStep = (step) => {
-    let errors = {}
+    const errors = {};
     if (step === 0) {
-      if (!formData.user.firstName) errors['user.firstName'] = 'First name is required'
-      if (!formData.user.lastName) errors['user.lastName'] = 'Last name is required'
-      if (!formData.user.email) errors['user.email'] = 'Email is required'
-      else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(formData.user.email)) errors['user.email'] = 'Invalid email'
-      if (!formData.user.dateOfBirth) errors['user.dateOfBirth'] = 'Date of birth is required'
-      if (!formData.user.gender) errors['user.gender'] = 'Gender is required'
+      if (!formData.user.firstName)
+        errors["user.firstName"] = "First name is required";
+      if (!formData.user.lastName)
+        errors["user.lastName"] = "Last name is required";
+      if (!formData.user.email) errors["user.email"] = "Email is required";
+      else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(formData.user.email))
+        errors["user.email"] = "Invalid email";
+      if (!formData.user.dateOfBirth)
+        errors["user.dateOfBirth"] = "Date of birth is required";
+      if (!formData.user.gender) errors["user.gender"] = "Gender is required";
     }
     if (step === 1) {
-      if (!formData.studentId) errors['studentId'] = 'Student ID is required'
-      if (!formData.admissionNumber) errors['admissionNumber'] = 'Admission number is required'
-      if (!formData.grade) errors['grade'] = 'Grade is required'
-      if (!formData.section) errors['section'] = 'Section is required'
-      if (!formData.rollNumber) errors['rollNumber'] = 'Roll number is required'
-      if (!formData.enrollmentDate) errors['enrollmentDate'] = 'Enrollment date is required'
+      // Auto-generated fields validation - only check in edit mode if they're missing
+      if (dialogMode === "edit") {
+        if (!formData.studentId) errors.studentId = "Student ID is missing";
+        if (!formData.admissionNumber)
+          errors.admissionNumber = "Admission number is missing";
+        if (!formData.rollNumber) errors.rollNumber = "Roll number is missing";
+      }
+      // Always validate these fields
+      if (!formData.grade) errors.grade = "Grade is required";
+      if (!formData.section) errors.section = "Section is required";
+      if (!formData.enrollmentDate)
+        errors.enrollmentDate = "Enrollment date is required";
     }
     if (step === 2) {
-      if (!formData.parents[0]?.firstName) errors['parents.0.firstName'] = 'First name is required'
-      if (!formData.parents[0]?.lastName) errors['parents.0.lastName'] = 'Last name is required'
-      if (!formData.parents[0]?.email) errors['parents.0.email'] = 'Email is required'
-      else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(formData.parents[0]?.email)) errors['parents.0.email'] = 'Invalid email'
-      if (!formData.parents[0]?.phone) errors['parents.0.phone'] = 'Phone is required'
+      if (!formData.parents[0]?.firstName)
+        errors["parents.0.firstName"] = "First name is required";
+      if (!formData.parents[0]?.lastName)
+        errors["parents.0.lastName"] = "Last name is required";
+      if (!formData.parents[0]?.email)
+        errors["parents.0.email"] = "Email is required";
+      else if (
+        !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(formData.parents[0]?.email)
+      )
+        errors["parents.0.email"] = "Invalid email";
+      if (!formData.parents[0]?.phone)
+        errors["parents.0.phone"] = "Phone is required";
     }
     // No required fields for step 3
-    setFormErrors(errors)
-    return Object.keys(errors).length === 0
-  }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSaveStudent = async () => {
     // Validate all steps before saving
-    let allValid = true
+    let allValid = true;
     for (let i = 0; i < enrollmentSteps.length; i++) {
       if (!validateStep(i)) {
-        setActiveStep(i)
-        allValid = false
-        break
+        setActiveStep(i);
+        allValid = false;
+        break;
       }
     }
-    if (!allValid) return
+    if (!allValid) return;
 
     try {
       const studentData = {
@@ -300,147 +407,270 @@ const StudentManagement = () => {
         attendanceRate: 100.0,
         aiInsights: {
           riskScore: 0,
-          performanceTrend: 'STABLE',
+          performanceTrend: "STABLE",
           recommendations: [],
           subjectPerformance: {},
-        }
+        },
+      };
+
+      if (dialogMode === "add") {
+        const newStudent = await studentService.createStudent(studentData);
+        setStudents([...students, newStudent]);
+        setSuccess("Student enrolled successfully!");
+      } else if (dialogMode === "edit") {
+        const updatedStudent = await studentService.updateStudent(
+          selectedStudent.id,
+          studentData,
+        );
+        const updatedStudents = students.map((s) =>
+          s.id === selectedStudent.id ? updatedStudent : s,
+        );
+        setStudents(updatedStudents);
+        setSuccess("Student updated successfully!");
       }
 
-      if (dialogMode === 'add') {
-        const newStudent = await studentService.createStudent(studentData)
-        setStudents([...students, newStudent])
-        setSuccess('Student enrolled successfully!')
-      } else if (dialogMode === 'edit') {
-        const updatedStudent = await studentService.updateStudent(selectedStudent.id, studentData)
-        const updatedStudents = students.map(s =>
-          s.id === selectedStudent.id ? updatedStudent : s
-        )
-        setStudents(updatedStudents)
-        setSuccess('Student updated successfully!')
-      }
-
-      setOpenDialog(false)
-      setTimeout(() => setSuccess(''), 3000)
+      setOpenDialog(false);
+      setTimeout(() => setSuccess(""), 3000);
     } catch (error) {
-      setError('Failed to save student: ' + error.message)
-      setTimeout(() => setError(''), 3000)
+      setError(`Failed to save student: ${error.message}`);
+      setTimeout(() => setError(""), 3000);
     }
-  }
+  };
 
   const handleFormChange = (field, value) => {
-    if (field.includes('.')) {
-      const [parent, child] = field.split('.')
-      setFormData(prev => ({
+    if (field.includes(".")) {
+      const [parent, child] = field.split(".");
+      setFormData((prev) => ({
         ...prev,
         [parent]: {
           ...prev[parent],
-          [child]: value
-        }
-      }))
-      setFormErrors(prev => ({ ...prev, [field]: undefined }))
+          [child]: value,
+        },
+      }));
+      setFormErrors((prev) => ({ ...prev, [field]: undefined }));
     } else {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+      setFormErrors((prev) => ({ ...prev, [field]: undefined }));
+
+      // Auto-generate IDs when grade or section changes
+      if (field === "grade" || field === "section") {
+        const currentGrade = field === "grade" ? value : formData.grade;
+        const currentSection = field === "section" ? value : formData.section;
+
+        if (currentGrade && currentSection) {
+          generateStudentIds(currentGrade, currentSection);
+        }
+      }
+    }
+  };
+
+  // Auto-generate student IDs
+  const generateStudentIds = async (grade, section) => {
+    try {
+      const [studentIdPreview, admissionNumberPreview, rollNumberPreview] = await Promise.all([
+        idConfigurationService.previewNextId("STUDENT_ID", grade, section),
+        idConfigurationService.previewNextId("ADMISSION_NUMBER"),
+        idConfigurationService.previewNextId("ROLL_NUMBER", grade, section),
+      ]);
+
+      const newIds = {
+        studentId: studentIdPreview.nextId || `STU-${new Date().getFullYear()}-${grade}-${section}-${String(Math.floor(Math.random() * 9999) + 1).padStart(4, '0')}`,
+        admissionNumber: admissionNumberPreview.nextId || `ADM${new Date().getFullYear()}${String(Math.floor(Math.random() * 99999) + 1).padStart(5, '0')}`,
+        rollNumber: rollNumberPreview.nextId || String(Math.floor(Math.random() * 999) + 1).padStart(3, '0'),
+      };
+
+      setAutoGeneratedIds(newIds);
+
+      // Update form data with auto-generated IDs
       setFormData(prev => ({
         ...prev,
-        [field]: value
-      }))
-      setFormErrors(prev => ({ ...prev, [field]: undefined }))
+        studentId: newIds.studentId,
+        admissionNumber: newIds.admissionNumber,
+        rollNumber: newIds.rollNumber,
+      }));
+
+    } catch (error) {
+      console.error("Error generating IDs:", error);
+      // Fallback to simple generation if backend is not available
+      const fallbackIds = {
+        studentId: `STU-${new Date().getFullYear()}-${grade}-${section}-${String(Math.floor(Math.random() * 9999) + 1).padStart(4, '0')}`,
+        admissionNumber: `ADM${new Date().getFullYear()}${String(Math.floor(Math.random() * 99999) + 1).padStart(5, '0')}`,
+        rollNumber: String(Math.floor(Math.random() * 999) + 1).padStart(3, '0'),
+      };
+
+      setAutoGeneratedIds(fallbackIds);
+
+      setFormData(prev => ({
+        ...prev,
+        studentId: fallbackIds.studentId,
+        admissionNumber: fallbackIds.admissionNumber,
+        rollNumber: fallbackIds.rollNumber,
+      }));
     }
-  }
+  };
+
+  // Initialize auto-generated IDs when dialog opens for new student
+  const initializeAutoGeneratedIds = async () => {
+    if (dialogMode === "add") {
+      try {
+        const admissionNumberPreview = await idConfigurationService.previewNextId("ADMISSION_NUMBER");
+        const admissionNumber = admissionNumberPreview.nextId || `ADM${new Date().getFullYear()}${String(Math.floor(Math.random() * 99999) + 1).padStart(5, '0')}`;
+
+        setAutoGeneratedIds(prev => ({
+          ...prev,
+          admissionNumber,
+        }));
+
+        setFormData(prev => ({
+          ...prev,
+          admissionNumber,
+        }));
+      } catch (error) {
+        console.error("Error initializing admission number:", error);
+        const fallbackAdmissionNumber = `ADM${new Date().getFullYear()}${String(Math.floor(Math.random() * 99999) + 1).padStart(5, '0')}`;
+        setAutoGeneratedIds(prev => ({
+          ...prev,
+          admissionNumber: fallbackAdmissionNumber,
+        }));
+        setFormData(prev => ({
+          ...prev,
+          admissionNumber: fallbackAdmissionNumber,
+        }));
+      }
+    }
+  };
 
   const handleStepNext = () => {
     if (validateStep(activeStep)) {
-      setActiveStep(prev => Math.min(prev + 1, enrollmentSteps.length - 1))
+      setActiveStep((prev) => Math.min(prev + 1, enrollmentSteps.length - 1));
     }
-  }
+  };
 
   const handleStepBack = () => {
-    setActiveStep(prev => Math.max(prev - 1, 0))
-  }
+    setActiveStep((prev) => Math.max(prev - 1, 0));
+  };
 
-  const filteredStudents = students.filter(student => {
-    const searchLower = searchTerm.toLowerCase()
+  const filteredStudents = students.filter((student) => {
+    const searchLower = searchTerm.toLowerCase();
     const matchesSearch =
-      (student.user?.firstName?.toLowerCase().includes(searchLower)) ||
-      (student.user?.lastName?.toLowerCase().includes(searchLower)) ||
-      (student.user?.email?.toLowerCase().includes(searchLower)) ||
-      (student.studentId?.toLowerCase().includes(searchLower)) ||
-      (student.rollNumber?.toLowerCase().includes(searchLower))
+      student.user?.firstName?.toLowerCase().includes(searchLower) ||
+      student.user?.lastName?.toLowerCase().includes(searchLower) ||
+      student.user?.email?.toLowerCase().includes(searchLower) ||
+      student.studentId?.toLowerCase().includes(searchLower) ||
+      student.rollNumber?.toLowerCase().includes(searchLower);
 
-    const matchesGrade = !gradeFilter || student.grade === gradeFilter
-    const matchesSection = !sectionFilter || student.section === sectionFilter
-    const matchesStatus = !statusFilter || student.academicStatus === statusFilter
+    const matchesGrade = !gradeFilter || student.grade === gradeFilter;
+    const matchesSection = !sectionFilter || student.section === sectionFilter;
+    const matchesStatus =
+      !statusFilter || student.academicStatus === statusFilter;
 
-    return matchesSearch && matchesGrade && matchesSection && matchesStatus
-  })
+    return matchesSearch && matchesGrade && matchesSection && matchesStatus;
+  });
 
   const getRiskColor = (score) => {
-    if (score <= 25) return '#4caf50'
-    if (score <= 50) return '#ff9800'
-    return '#f44336'
-  }
+    if (score <= 25) return "#4caf50";
+    if (score <= 50) return "#ff9800";
+    return "#f44336";
+  };
 
   const getRiskLevel = (score) => {
-    if (score <= 25) return 'Low'
-    if (score <= 50) return 'Medium'
-    return 'High'
-  }
+    if (score <= 25) return "Low";
+    if (score <= 50) return "Medium";
+    return "High";
+  };
 
   // Export students as JSON
   const handleExport = () => {
-    const dataStr = JSON.stringify(students, null, 2)
-    const blob = new Blob([dataStr], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'students_export.json'
-    a.click()
-    URL.revokeObjectURL(url)
-  }
+    const dataStr = JSON.stringify(students, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "students_export.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   // Import students from JSON
   const handleImportClick = () => {
-    if (fileInputRef.current) fileInputRef.current.value = ''
-    fileInputRef.current?.click()
-  }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    fileInputRef.current?.click();
+  };
 
   const handleImport = async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
+    const file = e.target.files[0];
+    if (!file) return;
     try {
-      const text = await file.text()
-      const imported = JSON.parse(text)
-      if (!Array.isArray(imported)) throw new Error('Invalid file format')
+      const text = await file.text();
+      const imported = JSON.parse(text);
+      if (!Array.isArray(imported)) throw new Error("Invalid file format");
       // Optionally, validate structure here
       // Save to backend (optional) or just update state
-      setStudents(imported)
-      setSuccess('Students imported successfully!')
-      setTimeout(() => setSuccess(''), 3000)
+      setStudents(imported);
+      setSuccess("Students imported successfully!");
+      setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
-      setError('Failed to import students: ' + err.message)
-      setTimeout(() => setError(''), 3000)
+      setError(`Failed to import students: ${err.message}`);
+      setTimeout(() => setError(""), 3000);
     }
-  }
+  };
 
   const renderStatsCards = () => (
     <Grid container spacing={3} sx={{ mb: 3 }}>
       {[
-        { title: 'Total Students', value: students.length, icon: PersonIcon, color: '#2196f3' },
-        { title: 'Active Students', value: students.filter(s => s.academicStatus === 'ACTIVE').length, icon: GroupIcon, color: '#4caf50' },
-        { title: 'New This Month', value: '5', icon: TrendingUpIcon, color: '#ff9800' },
-        { title: 'At Risk', value: students.filter(s => s.aiInsights && s.aiInsights.riskScore > 50).length, icon: AssignmentIcon, color: '#f44336' },
+        {
+          title: "Total Students",
+          value: students.length,
+          icon: PersonIcon,
+          color: "#2196f3",
+        },
+        {
+          title: "Active Students",
+          value: students.filter((s) => s.academicStatus === "ACTIVE").length,
+          icon: GroupIcon,
+          color: "#4caf50",
+        },
+        {
+          title: "New This Month",
+          value: "5",
+          icon: TrendingUpIcon,
+          color: "#ff9800",
+        },
+        {
+          title: "At Risk",
+          value: students.filter(
+            (s) => s.aiInsights && s.aiInsights.riskScore > 50,
+          ).length,
+          icon: AssignmentIcon,
+          color: "#f44336",
+        },
       ].map((stat, index) => (
         <Grid item xs={12} sm={6} lg={3} key={index}>
-          <Card sx={{
-            background: 'linear-gradient(135deg, #fff 0%, #f8f9fa 100%)',
-            border: '1px solid #e0e0e0',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-            transition: 'transform 0.3s ease',
-            '&:hover': { transform: 'translateY(-4px)' }
-          }}>
+          <Card
+            sx={{
+              background: "linear-gradient(135deg, #fff 0%, #f8f9fa 100%)",
+              border: "1px solid #e0e0e0",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+              transition: "transform 0.3s ease",
+              "&:hover": { transform: "translateY(-4px)" },
+            }}
+          >
             <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
                 <Box>
-                  <Typography variant="h4" sx={{ fontWeight: 'bold', color: stat.color }}>
+                  <Typography
+                    variant="h4"
+                    sx={{ fontWeight: "bold", color: stat.color }}
+                  >
                     {stat.value}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
@@ -456,7 +686,7 @@ const StudentManagement = () => {
         </Grid>
       ))}
     </Grid>
-  )
+  );
 
   const renderEnrollmentForm = () => {
     const renderStepContent = (step) => {
@@ -469,10 +699,12 @@ const StudentManagement = () => {
                   fullWidth
                   label="First Name"
                   value={formData.user.firstName}
-                  onChange={(e) => handleFormChange('user.firstName', e.target.value)}
+                  onChange={(e) =>
+                    handleFormChange("user.firstName", e.target.value)
+                  }
                   required
-                  error={!!formErrors['user.firstName']}
-                  helperText={formErrors['user.firstName']}
+                  error={!!formErrors["user.firstName"]}
+                  helperText={formErrors["user.firstName"]}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -480,10 +712,12 @@ const StudentManagement = () => {
                   fullWidth
                   label="Last Name"
                   value={formData.user.lastName}
-                  onChange={(e) => handleFormChange('user.lastName', e.target.value)}
+                  onChange={(e) =>
+                    handleFormChange("user.lastName", e.target.value)
+                  }
                   required
-                  error={!!formErrors['user.lastName']}
-                  helperText={formErrors['user.lastName']}
+                  error={!!formErrors["user.lastName"]}
+                  helperText={formErrors["user.lastName"]}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -492,10 +726,12 @@ const StudentManagement = () => {
                   label="Email"
                   type="email"
                   value={formData.user.email}
-                  onChange={(e) => handleFormChange('user.email', e.target.value)}
+                  onChange={(e) =>
+                    handleFormChange("user.email", e.target.value)
+                  }
                   required
-                  error={!!formErrors['user.email']}
-                  helperText={formErrors['user.email']}
+                  error={!!formErrors["user.email"]}
+                  helperText={formErrors["user.email"]}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -503,7 +739,9 @@ const StudentManagement = () => {
                   fullWidth
                   label="Phone"
                   value={formData.user.phone}
-                  onChange={(e) => handleFormChange('user.phone', e.target.value)}
+                  onChange={(e) =>
+                    handleFormChange("user.phone", e.target.value)
+                  }
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -512,26 +750,34 @@ const StudentManagement = () => {
                   label="Date of Birth"
                   type="date"
                   value={formData.user.dateOfBirth}
-                  onChange={(e) => handleFormChange('user.dateOfBirth', e.target.value)}
+                  onChange={(e) =>
+                    handleFormChange("user.dateOfBirth", e.target.value)
+                  }
                   InputLabelProps={{ shrink: true }}
                   required
-                  error={!!formErrors['user.dateOfBirth']}
-                  helperText={formErrors['user.dateOfBirth']}
+                  error={!!formErrors["user.dateOfBirth"]}
+                  helperText={formErrors["user.dateOfBirth"]}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormControl fullWidth error={!!formErrors['user.gender']}>
+                <FormControl fullWidth error={!!formErrors["user.gender"]}>
                   <InputLabel>Gender</InputLabel>
                   <Select
                     value={formData.user.gender}
-                    onChange={(e) => handleFormChange('user.gender', e.target.value)}
+                    onChange={(e) =>
+                      handleFormChange("user.gender", e.target.value)
+                    }
                     required
                   >
                     {genders.map((gender) => (
-                      <MenuItem key={gender} value={gender}>{gender}</MenuItem>
+                      <MenuItem key={gender} value={gender}>
+                        {gender}
+                      </MenuItem>
                     ))}
                   </Select>
-                  {formErrors['user.gender'] && <FormHelperText>{formErrors['user.gender']}</FormHelperText>}
+                  {formErrors["user.gender"] && (
+                    <FormHelperText>{formErrors["user.gender"]}</FormHelperText>
+                  )}
                 </FormControl>
               </Grid>
               <Grid item xs={12}>
@@ -541,11 +787,13 @@ const StudentManagement = () => {
                   multiline
                   rows={3}
                   value={formData.user.address}
-                  onChange={(e) => handleFormChange('user.address', e.target.value)}
+                  onChange={(e) =>
+                    handleFormChange("user.address", e.target.value)
+                  }
                 />
               </Grid>
             </Grid>
-          )
+          );
 
         case 1: // Academic Details
           return (
@@ -553,64 +801,104 @@ const StudentManagement = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Student ID"
+                  label="Student ID (Auto-Generated)"
                   value={formData.studentId}
-                  onChange={(e) => handleFormChange('studentId', e.target.value)}
+                  disabled={true}
+                  onChange={(e) =>
+                    handleFormChange("studentId", e.target.value)
+                  }
                   required
-                  error={!!formErrors['studentId']}
-                  helperText={formErrors['studentId']}
+                  error={!!formErrors.studentId}
+                  helperText={dialogMode === "add" ? "Will be generated automatically based on Grade and Section" : "Student ID cannot be modified once generated"}
+                  InputProps={{
+                    style: {
+                      backgroundColor: "#f5f5f5",
+                      fontFamily: "monospace",
+                      fontWeight: "bold",
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Admission Number"
+                  label="Admission Number (Auto-Generated)"
                   value={formData.admissionNumber}
-                  onChange={(e) => handleFormChange('admissionNumber', e.target.value)}
+                  disabled={true}
+                  onChange={(e) =>
+                    handleFormChange("admissionNumber", e.target.value)
+                  }
                   required
-                  error={!!formErrors['admissionNumber']}
-                  helperText={formErrors['admissionNumber']}
+                  error={!!formErrors.admissionNumber}
+                  helperText={dialogMode === "add" ? "Auto-generated unique admission number" : "Admission Number cannot be modified once generated"}
+                  InputProps={{
+                    style: {
+                      backgroundColor: "#f5f5f5",
+                      fontFamily: "monospace",
+                      fontWeight: "bold",
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
-                <FormControl fullWidth error={!!formErrors['grade']}>
+                <FormControl fullWidth error={!!formErrors.grade}>
                   <InputLabel>Grade</InputLabel>
                   <Select
                     value={formData.grade}
-                    onChange={(e) => handleFormChange('grade', e.target.value)}
+                    onChange={(e) => handleFormChange("grade", e.target.value)}
                     required
                   >
-                    {grades.map((grade) => (
-                      <MenuItem key={grade} value={grade}>{grade}</MenuItem>
+                    {masterData.grades.map((grade) => (
+                      <MenuItem key={grade.value} value={grade.value}>
+                        {grade.label}
+                      </MenuItem>
                     ))}
                   </Select>
-                  {formErrors['grade'] && <FormHelperText>{formErrors['grade']}</FormHelperText>}
+                  {formErrors.grade && (
+                    <FormHelperText>{formErrors.grade}</FormHelperText>
+                  )}
                 </FormControl>
               </Grid>
               <Grid item xs={12} sm={4}>
-                <FormControl fullWidth error={!!formErrors['section']}>
+                <FormControl fullWidth error={!!formErrors.section}>
                   <InputLabel>Section</InputLabel>
                   <Select
                     value={formData.section}
-                    onChange={(e) => handleFormChange('section', e.target.value)}
+                    onChange={(e) =>
+                      handleFormChange("section", e.target.value)
+                    }
                     required
                   >
-                    {sections.map((section) => (
-                      <MenuItem key={section} value={section}>{section}</MenuItem>
+                    {masterData.sections.map((section) => (
+                      <MenuItem key={section.value} value={section.value}>
+                        {section.label}
+                      </MenuItem>
                     ))}
                   </Select>
-                  {formErrors['section'] && <FormHelperText>{formErrors['section']}</FormHelperText>}
+                  {formErrors.section && (
+                    <FormHelperText>{formErrors.section}</FormHelperText>
+                  )}
                 </FormControl>
               </Grid>
               <Grid item xs={12} sm={4}>
                 <TextField
                   fullWidth
-                  label="Roll Number"
+                  label="Roll Number (Auto-Generated)"
                   value={formData.rollNumber}
-                  onChange={(e) => handleFormChange('rollNumber', e.target.value)}
+                  disabled={true}
+                  onChange={(e) =>
+                    handleFormChange("rollNumber", e.target.value)
+                  }
                   required
-                  error={!!formErrors['rollNumber']}
-                  helperText={formErrors['rollNumber']}
+                  error={!!formErrors.rollNumber}
+                  helperText={dialogMode === "add" ? "Generated based on Grade and Section" : "Roll Number cannot be modified once generated"}
+                  InputProps={{
+                    style: {
+                      backgroundColor: "#f5f5f5",
+                      fontFamily: "monospace",
+                      fontWeight: "bold",
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -619,11 +907,13 @@ const StudentManagement = () => {
                   label="Enrollment Date"
                   type="date"
                   value={formData.enrollmentDate}
-                  onChange={(e) => handleFormChange('enrollmentDate', e.target.value)}
+                  onChange={(e) =>
+                    handleFormChange("enrollmentDate", e.target.value)
+                  }
                   InputLabelProps={{ shrink: true }}
                   required
-                  error={!!formErrors['enrollmentDate']}
-                  helperText={formErrors['enrollmentDate']}
+                  error={!!formErrors.enrollmentDate}
+                  helperText={formErrors.enrollmentDate}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -631,24 +921,26 @@ const StudentManagement = () => {
                   <InputLabel>Academic Status</InputLabel>
                   <Select
                     value={formData.academicStatus}
-                    onChange={(e) => handleFormChange('academicStatus', e.target.value)}
+                    onChange={(e) =>
+                      handleFormChange("academicStatus", e.target.value)
+                    }
                   >
                     {academicStatuses.map((status) => (
                       <MenuItem key={status} value={status}>
-                        {status.replace('_', ' ')}
+                        {status.replace("_", " ")}
                       </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
               </Grid>
             </Grid>
-          )
+          );
 
         case 2: // Parent/Guardian Info
           return (
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <Typography variant="h6" sx={{ mb: 2, color: '#1976d2' }}>
+                <Typography variant="h6" sx={{ mb: 2, color: "#1976d2" }}>
                   Parent/Guardian Information
                 </Typography>
               </Grid>
@@ -656,32 +948,44 @@ const StudentManagement = () => {
                 <TextField
                   fullWidth
                   label="Parent/Guardian First Name"
-                  value={formData.parents[0]?.firstName || ''}
+                  value={formData.parents[0]?.firstName || ""}
                   onChange={(e) => {
-                    const newParents = [...formData.parents]
-                    newParents[0] = { ...newParents[0], firstName: e.target.value }
-                    setFormData(prev => ({ ...prev, parents: newParents }))
-                    setFormErrors(prev => ({ ...prev, ['parents.0.firstName']: undefined }))
+                    const newParents = [...formData.parents];
+                    newParents[0] = {
+                      ...newParents[0],
+                      firstName: e.target.value,
+                    };
+                    setFormData((prev) => ({ ...prev, parents: newParents }));
+                    setFormErrors((prev) => ({
+                      ...prev,
+                      "parents.0.firstName": undefined,
+                    }));
                   }}
                   required
-                  error={!!formErrors['parents.0.firstName']}
-                  helperText={formErrors['parents.0.firstName']}
+                  error={!!formErrors["parents.0.firstName"]}
+                  helperText={formErrors["parents.0.firstName"]}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label="Parent/Guardian Last Name"
-                  value={formData.parents[0]?.lastName || ''}
+                  value={formData.parents[0]?.lastName || ""}
                   onChange={(e) => {
-                    const newParents = [...formData.parents]
-                    newParents[0] = { ...newParents[0], lastName: e.target.value }
-                    setFormData(prev => ({ ...prev, parents: newParents }))
-                    setFormErrors(prev => ({ ...prev, ['parents.0.lastName']: undefined }))
+                    const newParents = [...formData.parents];
+                    newParents[0] = {
+                      ...newParents[0],
+                      lastName: e.target.value,
+                    };
+                    setFormData((prev) => ({ ...prev, parents: newParents }));
+                    setFormErrors((prev) => ({
+                      ...prev,
+                      "parents.0.lastName": undefined,
+                    }));
                   }}
                   required
-                  error={!!formErrors['parents.0.lastName']}
-                  helperText={formErrors['parents.0.lastName']}
+                  error={!!formErrors["parents.0.lastName"]}
+                  helperText={formErrors["parents.0.lastName"]}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -689,59 +993,70 @@ const StudentManagement = () => {
                   fullWidth
                   label="Parent/Guardian Email"
                   type="email"
-                  value={formData.parents[0]?.email || ''}
+                  value={formData.parents[0]?.email || ""}
                   onChange={(e) => {
-                    const newParents = [...formData.parents]
-                    newParents[0] = { ...newParents[0], email: e.target.value }
-                    setFormData(prev => ({ ...prev, parents: newParents }))
-                    setFormErrors(prev => ({ ...prev, ['parents.0.email']: undefined }))
+                    const newParents = [...formData.parents];
+                    newParents[0] = { ...newParents[0], email: e.target.value };
+                    setFormData((prev) => ({ ...prev, parents: newParents }));
+                    setFormErrors((prev) => ({
+                      ...prev,
+                      "parents.0.email": undefined,
+                    }));
                   }}
                   required
-                  error={!!formErrors['parents.0.email']}
-                  helperText={formErrors['parents.0.email']}
+                  error={!!formErrors["parents.0.email"]}
+                  helperText={formErrors["parents.0.email"]}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label="Parent/Guardian Phone"
-                  value={formData.parents[0]?.phone || ''}
+                  value={formData.parents[0]?.phone || ""}
                   onChange={(e) => {
-                    const newParents = [...formData.parents]
-                    newParents[0] = { ...newParents[0], phone: e.target.value }
-                    setFormData(prev => ({ ...prev, parents: newParents }))
-                    setFormErrors(prev => ({ ...prev, ['parents.0.phone']: undefined }))
+                    const newParents = [...formData.parents];
+                    newParents[0] = { ...newParents[0], phone: e.target.value };
+                    setFormData((prev) => ({ ...prev, parents: newParents }));
+                    setFormErrors((prev) => ({
+                      ...prev,
+                      "parents.0.phone": undefined,
+                    }));
                   }}
                   required
-                  error={!!formErrors['parents.0.phone']}
-                  helperText={formErrors['parents.0.phone']}
+                  error={!!formErrors["parents.0.phone"]}
+                  helperText={formErrors["parents.0.phone"]}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <FormControl fullWidth>
                   <InputLabel>Relationship</InputLabel>
                   <Select
-                    value={formData.parents[0]?.relationship || 'FATHER'}
+                    value={formData.parents[0]?.relationship || "FATHER"}
                     onChange={(e) => {
-                      const newParents = [...formData.parents]
-                      newParents[0] = { ...newParents[0], relationship: e.target.value }
-                      setFormData(prev => ({ ...prev, parents: newParents }))
+                      const newParents = [...formData.parents];
+                      newParents[0] = {
+                        ...newParents[0],
+                        relationship: e.target.value,
+                      };
+                      setFormData((prev) => ({ ...prev, parents: newParents }));
                     }}
                   >
                     {relationships.map((rel) => (
-                      <MenuItem key={rel} value={rel}>{rel}</MenuItem>
+                      <MenuItem key={rel} value={rel}>
+                        {rel}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
               </Grid>
             </Grid>
-          )
+          );
 
         case 3: // Medical Info
           return (
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <Typography variant="h6" sx={{ mb: 2, color: '#1976d2' }}>
+                <Typography variant="h6" sx={{ mb: 2, color: "#1976d2" }}>
                   Medical Information
                 </Typography>
               </Grid>
@@ -750,10 +1065,14 @@ const StudentManagement = () => {
                   <InputLabel>Blood Group</InputLabel>
                   <Select
                     value={formData.medicalInfo.bloodGroup}
-                    onChange={(e) => handleFormChange('medicalInfo.bloodGroup', e.target.value)}
+                    onChange={(e) =>
+                      handleFormChange("medicalInfo.bloodGroup", e.target.value)
+                    }
                   >
                     {bloodGroups.map((group) => (
-                      <MenuItem key={group} value={group}>{group}</MenuItem>
+                      <MenuItem key={group} value={group}>
+                        {group}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
@@ -763,7 +1082,12 @@ const StudentManagement = () => {
                   fullWidth
                   label="Emergency Medical Contact"
                   value={formData.medicalInfo.emergencyMedicalContact}
-                  onChange={(e) => handleFormChange('medicalInfo.emergencyMedicalContact', e.target.value)}
+                  onChange={(e) =>
+                    handleFormChange(
+                      "medicalInfo.emergencyMedicalContact",
+                      e.target.value,
+                    )
+                  }
                 />
               </Grid>
               <Grid item xs={12}>
@@ -773,16 +1097,18 @@ const StudentManagement = () => {
                   multiline
                   rows={3}
                   value={formData.medicalInfo.specialNeeds}
-                  onChange={(e) => handleFormChange('medicalInfo.specialNeeds', e.target.value)}
+                  onChange={(e) =>
+                    handleFormChange("medicalInfo.specialNeeds", e.target.value)
+                  }
                 />
               </Grid>
             </Grid>
-          )
+          );
 
         default:
-          return null
+          return null;
       }
-    }
+    };
 
     return (
       <Box>
@@ -796,11 +1122,8 @@ const StudentManagement = () => {
 
         {renderStepContent(activeStep)}
 
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-          <Button
-            disabled={activeStep === 0}
-            onClick={handleStepBack}
-          >
+        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 4 }}>
+          <Button disabled={activeStep === 0} onClick={handleStepBack}>
             Back
           </Button>
           <Box>
@@ -808,7 +1131,10 @@ const StudentManagement = () => {
               <Button
                 variant="contained"
                 onClick={handleStepNext}
-                sx={{ background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)' }}
+                sx={{
+                  background:
+                    "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
+                }}
               >
                 Next
               </Button>
@@ -816,16 +1142,19 @@ const StudentManagement = () => {
               <Button
                 variant="contained"
                 onClick={handleSaveStudent}
-                sx={{ background: 'linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)' }}
+                sx={{
+                  background:
+                    "linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)",
+                }}
               >
-                {dialogMode === 'add' ? 'Enroll Student' : 'Save Changes'}
+                {dialogMode === "add" ? "Enroll Student" : "Save Changes"}
               </Button>
             )}
           </Box>
         </Box>
       </Box>
-    )
-  }
+    );
+  };
 
   const renderStudentDialog = () => (
     <Dialog
@@ -833,25 +1162,33 @@ const StudentManagement = () => {
       onClose={() => setOpenDialog(false)}
       maxWidth="lg"
       fullWidth
-      sx={{ '& .MuiDialog-paper': { minHeight: '80vh' } }}
+      sx={{ "& .MuiDialog-paper": { minHeight: "80vh" } }}
     >
-      <DialogTitle sx={{
-        background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
-        color: 'white',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 1
-      }}>
+      <DialogTitle
+        sx={{
+          background: "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
+          color: "white",
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+        }}
+      >
         <SchoolIcon />
-        {dialogMode === 'add' ? 'Enroll New Student' :
-         dialogMode === 'edit' ? 'Edit Student Information' : 'Student Profile'}
+        {dialogMode === "add"
+          ? "Enroll New Student"
+          : dialogMode === "edit"
+            ? "Edit Student Information"
+            : "Student Profile"}
       </DialogTitle>
 
       <DialogContent sx={{ pt: 3, pb: 1, px: 4 }}>
-        {dialogMode === 'view' && selectedStudent ? (
+        {dialogMode === "view" && selectedStudent ? (
           <Box>
             <Typography variant="h6">Student Details</Typography>
-            <Typography>Name: {selectedStudent.user?.firstName} {selectedStudent.user?.lastName}</Typography>
+            <Typography>
+              Name: {selectedStudent.user?.firstName}{" "}
+              {selectedStudent.user?.lastName}
+            </Typography>
             <Typography>Email: {selectedStudent.user?.email}</Typography>
             <Typography>Grade: {selectedStudent.grade}</Typography>
             <Typography>Section: {selectedStudent.section}</Typography>
@@ -863,17 +1200,17 @@ const StudentManagement = () => {
 
       <DialogActions sx={{ p: 3, pt: 2 }}>
         <Button onClick={() => setOpenDialog(false)}>
-          {dialogMode === 'view' ? 'Close' : 'Cancel'}
+          {dialogMode === "view" ? "Close" : "Cancel"}
         </Button>
-        {dialogMode === 'view' && (
+        {dialogMode === "view" && (
           <Button
             onClick={() => {
-              handleEditStudent(selectedStudent)
+              handleEditStudent(selectedStudent);
             }}
             variant="contained"
             sx={{
-              background: 'linear-gradient(135deg, #ff9800 0%, #ffa726 100%)',
-              px: 3
+              background: "linear-gradient(135deg, #ff9800 0%, #ffa726 100%)",
+              px: 3,
             }}
           >
             Edit Student
@@ -881,26 +1218,28 @@ const StudentManagement = () => {
         )}
       </DialogActions>
     </Dialog>
-  )
+  );
 
   if (loading) {
     return (
       <DashboardLayout title="Student Management">
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '60vh',
-          flexDirection: 'column',
-          gap: 2
-        }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "60vh",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
           <CircularProgress size={60} />
           <Typography variant="h6" color="text.secondary">
             Loading Students...
           </Typography>
         </Box>
       </DashboardLayout>
-    )
+    );
   }
 
   return (
@@ -908,22 +1247,30 @@ const StudentManagement = () => {
       <Box sx={{ p: 3 }}>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1976d2', mb: 1 }}>
+          <Typography
+            variant="h4"
+            sx={{ fontWeight: "bold", color: "#1976d2", mb: 1 }}
+          >
             👨‍🎓 Student Management
           </Typography>
           <Typography variant="h6" color="text.secondary">
-            Manage student enrollment, track academic progress, and monitor performance
+            Manage student enrollment, track academic progress, and monitor
+            performance
           </Typography>
         </Box>
 
         {/* Alerts */}
         {success && (
-          <Alert severity="success" sx={{ mb: 3, backgroundColor: '#e8f5e8' }} onClose={() => setSuccess('')}>
+          <Alert
+            severity="success"
+            sx={{ mb: 3, backgroundColor: "#e8f5e8" }}
+            onClose={() => setSuccess("")}
+          >
             {success}
           </Alert>
         )}
         {error && (
-          <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError('')}>
+          <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError("")}>
             {error}
           </Alert>
         )}
@@ -959,8 +1306,10 @@ const StudentManagement = () => {
                     onChange={(e) => setGradeFilter(e.target.value)}
                   >
                     <MenuItem value="">All Grades</MenuItem>
-                    {grades.map((grade) => (
-                      <MenuItem key={grade} value={grade}>Grade {grade}</MenuItem>
+                    {masterData.grades.map((grade) => (
+                      <MenuItem key={grade.value} value={grade.value}>
+                        Grade {grade.label}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
@@ -974,15 +1323,19 @@ const StudentManagement = () => {
                     onChange={(e) => setSectionFilter(e.target.value)}
                   >
                     <MenuItem value="">All Sections</MenuItem>
-                    {sections.map((section) => (
-                      <MenuItem key={section} value={section}>Section {section}</MenuItem>
+                    {masterData.sections.map((section) => (
+                      <MenuItem key={section.value} value={section.value}>
+                        Section {section.label}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
               </Grid>
 
               <Grid item xs={12} md={5}>
-                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                <Box
+                  sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}
+                >
                   <Button
                     variant="outlined"
                     startIcon={<DownloadIcon />}
@@ -1003,7 +1356,7 @@ const StudentManagement = () => {
                     type="file"
                     accept="application/json"
                     ref={fileInputRef}
-                    style={{ display: 'none' }}
+                    style={{ display: "none" }}
                     onChange={handleImport}
                   />
                   <Button
@@ -1011,7 +1364,8 @@ const StudentManagement = () => {
                     startIcon={<AddIcon />}
                     onClick={handleAddStudent}
                     sx={{
-                      background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
+                      background:
+                        "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
                     }}
                   >
                     Enroll Student
@@ -1028,15 +1382,21 @@ const StudentManagement = () => {
             <TableContainer component={Paper} elevation={0}>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Student</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>ID / Roll No</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Grade & Section</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>GPA</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Attendance</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>AI Risk</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Actions</TableCell>
+                  <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
+                    <TableCell sx={{ fontWeight: "bold" }}>Student</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      ID / Roll No
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Grade & Section
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>GPA</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Attendance
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>AI Risk</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -1044,21 +1404,31 @@ const StudentManagement = () => {
                     <TableRow
                       key={student.id}
                       sx={{
-                        '&:hover': { backgroundColor: '#f8f9fa' },
-                        transition: 'background-color 0.3s ease'
+                        "&:hover": { backgroundColor: "#f8f9fa" },
+                        transition: "background-color 0.3s ease",
                       }}
                     >
                       <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                          <Avatar sx={{ bgcolor: '#1976d2' }}>
-                            {student.user?.firstName?.[0] || 'S'}{student.user?.lastName?.[0] || 'T'}
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                        >
+                          <Avatar sx={{ bgcolor: "#1976d2" }}>
+                            {student.user?.firstName?.[0] || "S"}
+                            {student.user?.lastName?.[0] || "T"}
                           </Avatar>
                           <Box>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                              {student.user?.firstName || 'N/A'} {student.user?.lastName || ''}
+                            <Typography
+                              variant="subtitle2"
+                              sx={{ fontWeight: "bold" }}
+                            >
+                              {student.user?.firstName || "N/A"}{" "}
+                              {student.user?.lastName || ""}
                             </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              {student.user?.email || 'No email'}
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              {student.user?.email || "No email"}
                             </Typography>
                           </Box>
                         </Box>
@@ -1066,18 +1436,21 @@ const StudentManagement = () => {
 
                       <TableCell>
                         <Box>
-                          <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 'bold' }}>
-                            {student.studentId || 'N/A'}
+                          <Typography
+                            variant="body2"
+                            sx={{ fontFamily: "monospace", fontWeight: "bold" }}
+                          >
+                            {student.studentId || "N/A"}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            Roll: {student.rollNumber || 'N/A'}
+                            Roll: {student.rollNumber || "N/A"}
                           </Typography>
                         </Box>
                       </TableCell>
 
                       <TableCell>
                         <Chip
-                          label={`${student.grade || 'N/A'}${student.section || ''}`}
+                          label={`${student.grade || "N/A"}${student.section || ""}`}
                           size="small"
                           color="primary"
                           variant="outlined"
@@ -1085,22 +1458,32 @@ const StudentManagement = () => {
                       </TableCell>
 
                       <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
                           <Typography
                             variant="body2"
                             sx={{
-                              fontWeight: 'bold',
-                              color: (student.currentGPA || 0) >= 3.5 ? '#4caf50' :
-                                     (student.currentGPA || 0) >= 3.0 ? '#ff9800' : '#f44336'
+                              fontWeight: "bold",
+                              color:
+                                (student.currentGPA || 0) >= 3.5
+                                  ? "#4caf50"
+                                  : (student.currentGPA || 0) >= 3.0
+                                    ? "#ff9800"
+                                    : "#f44336",
                             }}
                           >
                             {(student.currentGPA || 0).toFixed(1)}
                           </Typography>
                           <StarIcon
                             sx={{
-                              fontSize: '1rem',
-                              color: (student.currentGPA || 0) >= 3.5 ? '#4caf50' :
-                                     (student.currentGPA || 0) >= 3.0 ? '#ff9800' : '#f44336'
+                              fontSize: "1rem",
+                              color:
+                                (student.currentGPA || 0) >= 3.5
+                                  ? "#4caf50"
+                                  : (student.currentGPA || 0) >= 3.0
+                                    ? "#ff9800"
+                                    : "#f44336",
                             }}
                           />
                         </Box>
@@ -1108,7 +1491,10 @@ const StudentManagement = () => {
 
                       <TableCell>
                         <Box>
-                          <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                          <Typography
+                            variant="body2"
+                            sx={{ fontWeight: "bold" }}
+                          >
                             {(student.attendanceRate || 0).toFixed(1)}%
                           </Typography>
                           <LinearProgress
@@ -1118,30 +1504,40 @@ const StudentManagement = () => {
                               mt: 0.5,
                               height: 4,
                               borderRadius: 2,
-                              '& .MuiLinearProgress-bar': {
-                                backgroundColor: (student.attendanceRate || 0) >= 95 ? '#4caf50' :
-                                               (student.attendanceRate || 0) >= 85 ? '#ff9800' : '#f44336'
-                              }
+                              "& .MuiLinearProgress-bar": {
+                                backgroundColor:
+                                  (student.attendanceRate || 0) >= 95
+                                    ? "#4caf50"
+                                    : (student.attendanceRate || 0) >= 85
+                                      ? "#ff9800"
+                                      : "#f44336",
+                              },
                             }}
                           />
                         </Box>
                       </TableCell>
 
                       <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
                           <Box
                             sx={{
                               width: 12,
                               height: 12,
-                              borderRadius: '50%',
-                              backgroundColor: getRiskColor(student.aiInsights?.riskScore || 0)
+                              borderRadius: "50%",
+                              backgroundColor: getRiskColor(
+                                student.aiInsights?.riskScore || 0,
+                              ),
                             }}
                           />
                           <Typography
                             variant="body2"
                             sx={{
-                              fontWeight: 'bold',
-                              color: getRiskColor(student.aiInsights?.riskScore || 0)
+                              fontWeight: "bold",
+                              color: getRiskColor(
+                                student.aiInsights?.riskScore || 0,
+                              ),
                             }}
                           >
                             {getRiskLevel(student.aiInsights?.riskScore || 0)}
@@ -1151,19 +1547,23 @@ const StudentManagement = () => {
 
                       <TableCell>
                         <Chip
-                          label={student.academicStatus || 'ACTIVE'}
+                          label={student.academicStatus || "ACTIVE"}
                           size="small"
-                          color={(student.academicStatus || 'ACTIVE') === 'ACTIVE' ? 'success' : 'default'}
+                          color={
+                            (student.academicStatus || "ACTIVE") === "ACTIVE"
+                              ? "success"
+                              : "default"
+                          }
                         />
                       </TableCell>
 
                       <TableCell>
-                        <Box sx={{ display: 'flex', gap: 0.5 }}>
+                        <Box sx={{ display: "flex", gap: 0.5 }}>
                           <Tooltip title="View Profile">
                             <IconButton
                               size="small"
                               onClick={() => handleViewStudent(student)}
-                              sx={{ color: '#1976d2' }}
+                              sx={{ color: "#1976d2" }}
                             >
                               <ViewIcon fontSize="small" />
                             </IconButton>
@@ -1173,7 +1573,7 @@ const StudentManagement = () => {
                             <IconButton
                               size="small"
                               onClick={() => handleEditStudent(student)}
-                              sx={{ color: '#ff9800' }}
+                              sx={{ color: "#ff9800" }}
                             >
                               <EditIcon fontSize="small" />
                             </IconButton>
@@ -1183,7 +1583,7 @@ const StudentManagement = () => {
                             <IconButton
                               size="small"
                               onClick={() => handleDeleteStudent(student.id)}
-                              sx={{ color: '#f44336' }}
+                              sx={{ color: "#f44336" }}
                             >
                               <DeleteIcon fontSize="small" />
                             </IconButton>
@@ -1202,7 +1602,7 @@ const StudentManagement = () => {
         {renderStudentDialog()}
       </Box>
     </DashboardLayout>
-  )
-}
+  );
+};
 
-export default StudentManagement
+export default StudentManagement;

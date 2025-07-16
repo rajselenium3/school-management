@@ -1,58 +1,65 @@
-import React, { useState, useEffect } from 'react'
 import {
+  Add as AddIcon,
+  Assignment as AssignmentIcon,
+  Badge,
+  Cancel as CancelIcon,
+  Delete as DeleteIcon,
+  Work as DepartmentIcon,
+  Edit as EditIcon,
+  Badge as EmploymentIcon,
+  Grade as GradeIcon,
+  People as Group,
+  Save as SaveIcon,
+  School as SchoolIcon,
+  Group as SectionIcon,
+  Schedule as SemesterIcon,
+  Settings as SettingsIcon,
+  Visibility as ViewIcon,
+  Refresh as RefreshIcon,
+} from '@mui/icons-material';
+import {
+  Alert,
   Box,
-  Grid,
+  Button,
   Card,
   CardContent,
-  Typography,
-  Button,
-  TextField,
+  Chip,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  Switch,
+  Tab,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  IconButton,
-  Chip,
-  Alert,
-  Tab,
   Tabs,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Switch,
-  FormControlLabel,
-  Divider,
-} from '@mui/material'
-import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Save as SaveIcon,
-  Cancel as CancelIcon,
-  Settings as SettingsIcon,
-  School as SchoolIcon,
-  Grade as GradeIcon,
-  Group as SectionIcon,
-  Work as DepartmentIcon,
-  Schedule as SemesterIcon,
-  Assignment as AssignmentIcon,
-  Badge as EmploymentIcon,
-  People as Group,
-} from '@mui/icons-material'
+  TextField,
+  Typography,
+} from '@mui/material';
+import React, { useState, useEffect } from 'react';
 
-import DashboardLayout from '../../components/layout/DashboardLayout.js'
+import DashboardLayout from '../../components/layout/DashboardLayout.js';
+import idConfigurationService from '../../services/idConfigurationService.js';
+import masterDataService from '../../services/masterDataService.js';
+import accessCodeService from '../../services/accessCodeService.js';
 
 const DataManagement = () => {
   // Tabs for all data management, including new ones
   const dataTabs = [
+    { label: 'ID Configuration', icon: <Badge /> },
     { label: 'Grades', icon: <GradeIcon /> },
     { label: 'Sections', icon: <SectionIcon /> },
     { label: 'Departments', icon: <DepartmentIcon /> },
@@ -61,39 +68,49 @@ const DataManagement = () => {
     { label: 'Assignment Types', icon: <AssignmentIcon /> },
     { label: 'Access Codes', icon: <SettingsIcon /> },
     { label: 'Parent-Child Mapping', icon: <Group /> },
-  ]
+  ];
 
-  const [currentTab, setCurrentTab] = useState(0)
-  const [loading, setLoading] = useState(false)
-  const [dialogOpen, setOpenDialog] = useState(false)
-  const [dialog, setDialog] = useState({ open: false, type: '', mode: 'add', data: null })
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
+  const [currentTab, setCurrentTab] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [dialogOpen, setOpenDialog] = useState(false);
+  const [dialog, setDialog] = useState({
+    open: false,
+    type: '',
+    mode: 'add',
+    data: null,
+  });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   // Data states
-  const [grades, setGrades] = useState([])
-  const [sections, setSections] = useState([])
-  const [departments, setDepartments] = useState([])
-  const [employmentTypes, setEmploymentTypes] = useState([])
-  const [semesters, setSemesters] = useState([])
-  const [assignmentTypes, setAssignmentTypes] = useState([])
+  const [grades, setGrades] = useState([]);
+  const [sections, setSections] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [employmentTypes, setEmploymentTypes] = useState([]);
+  const [semesters, setSemesters] = useState([]);
+  const [assignmentTypes, setAssignmentTypes] = useState([]);
 
   // New states for access codes and parent-child mapping
-  const [accessCodes, setAccessCodes] = useState([])
-  const [parentChildMappings, setParentChildMappings] = useState([])
-  const [selectedAccessCode, setSelectedAccessCode] = useState(null)
-  const [selectedMapping, setSelectedMapping] = useState(null)
+  const [accessCodes, setAccessCodes] = useState([]);
+  const [parentChildMappings, setParentChildMappings] = useState([]);
+  const [selectedAccessCode, setSelectedAccessCode] = useState(null);
+  const [selectedMapping, setSelectedMapping] = useState(null);
+
+  // ID Configuration states
+  const [idConfigurations, setIdConfigurations] = useState([]);
+  const [selectedIdConfig, setSelectedIdConfig] = useState(null);
+  const [previewId, setPreviewId] = useState('');
 
   useEffect(() => {
-    loadAllData()
+    loadAllData();
     // eslint-disable-next-line
-  }, [])
+  }, []);
 
   const loadAllData = async () => {
     try {
-      setLoading(true)
-      // Simulate loading all data
+      setLoading(true);
       await Promise.all([
+        loadIdConfigurations(),
         loadGrades(),
         loadSections(),
         loadDepartments(),
@@ -102,153 +119,486 @@ const DataManagement = () => {
         loadAssignmentTypes(),
         loadAccessCodes(),
         loadParentChildMappings(),
-      ])
+      ]);
     } catch (error) {
-      setError('Failed to load data: ' + error.message)
+      setError(`Failed to load data: ${error.message}`);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  // Configuration data loading functions (using basic config until backend system endpoints are added)
+  // Configuration data loading functions - now using proper services
   const loadGrades = async () => {
-    setGrades([
-      { id: 1, name: 'Grade 9', description: 'Ninth Grade', status: 'active', students: 0 },
-      { id: 2, name: 'Grade 10', description: 'Tenth Grade', status: 'active', students: 0 },
-      { id: 3, name: 'Grade 11', description: 'Eleventh Grade', status: 'active', students: 0 },
-      { id: 4, name: 'Grade 12', description: 'Twelfth Grade', status: 'active', students: 0 },
-    ])
-  }
+    try {
+      const gradeLevels = await masterDataService.getAllGradeLevels();
+      const transformedGrades = gradeLevels.map((grade) => ({
+        id: grade.id,
+        name: grade.gradeName,
+        description: grade.description || grade.gradeName,
+        status: grade.active ? 'active' : 'inactive',
+        students: 0, // This would come from student count API
+      }));
+      setGrades(transformedGrades);
+    } catch (error) {
+      console.error('Error loading grades:', error);
+      // Fallback to hardcoded data
+      setGrades([
+        {
+          id: 1,
+          name: 'Grade 9',
+          description: 'Ninth Grade',
+          status: 'active',
+          students: 0,
+        },
+        {
+          id: 2,
+          name: 'Grade 10',
+          description: 'Tenth Grade',
+          status: 'active',
+          students: 0,
+        },
+        {
+          id: 3,
+          name: 'Grade 11',
+          description: 'Eleventh Grade',
+          status: 'active',
+          students: 0,
+        },
+        {
+          id: 4,
+          name: 'Grade 12',
+          description: 'Twelfth Grade',
+          status: 'active',
+          students: 0,
+        },
+      ]);
+    }
+  };
 
   const loadSections = async () => {
-    setSections([
-      { id: 1, name: 'Section A', grade: 'Grade 10', capacity: 35, enrolled: 0, teacher: 'TBD' },
-      { id: 2, name: 'Section B', grade: 'Grade 10', capacity: 35, enrolled: 0, teacher: 'TBD' },
-      { id: 3, name: 'Section A', grade: 'Grade 11', capacity: 35, enrolled: 0, teacher: 'TBD' },
-    ])
-  }
+    try {
+      const sectionsData = await masterDataService.getAllSections();
+      const transformedSections = sectionsData.map((section) => ({
+        id: section.id,
+        name: section.sectionName,
+        grade: 'Grade 10', // This would need to be mapped properly
+        capacity: section.maxCapacity || 35,
+        enrolled: section.currentEnrollment || 0,
+        teacher: 'TBD',
+      }));
+      setSections(transformedSections);
+    } catch (error) {
+      console.error('Error loading sections:', error);
+      // Fallback to hardcoded data
+      setSections([
+        {
+          id: 1,
+          name: 'Section A',
+          grade: 'Grade 10',
+          capacity: 35,
+          enrolled: 0,
+          teacher: 'TBD',
+        },
+        {
+          id: 2,
+          name: 'Section B',
+          grade: 'Grade 10',
+          capacity: 35,
+          enrolled: 0,
+          teacher: 'TBD',
+        },
+        {
+          id: 3,
+          name: 'Section A',
+          grade: 'Grade 11',
+          capacity: 35,
+          enrolled: 0,
+          teacher: 'TBD',
+        },
+      ]);
+    }
+  };
 
   const loadDepartments = async () => {
-    setDepartments([
-      { id: 1, name: 'Mathematics', head: 'TBD', teachers: 0, subjects: 0, status: 'active' },
-      { id: 2, name: 'Science', head: 'TBD', teachers: 0, subjects: 0, status: 'active' },
-      { id: 3, name: 'English', head: 'TBD', teachers: 0, subjects: 0, status: 'active' },
-      { id: 4, name: 'Computer Science', head: 'TBD', teachers: 0, subjects: 0, status: 'active' },
-    ])
-  }
+    try {
+      const departmentsData = await masterDataService.getAllDepartments();
+      const transformedDepartments = departmentsData.map((dept) => ({
+        id: dept.id,
+        name: dept.departmentName,
+        head: dept.headOfDepartment || 'TBD',
+        teachers: dept.currentTeachers || 0,
+        subjects: 0, // This would come from subjects API
+        status: dept.active ? 'active' : 'inactive',
+      }));
+      setDepartments(transformedDepartments);
+    } catch (error) {
+      console.error('Error loading departments:', error);
+      // Fallback to hardcoded data
+      setDepartments([
+        {
+          id: 1,
+          name: 'Mathematics',
+          head: 'TBD',
+          teachers: 0,
+          subjects: 0,
+          status: 'active',
+        },
+        {
+          id: 2,
+          name: 'Science',
+          head: 'TBD',
+          teachers: 0,
+          subjects: 0,
+          status: 'active',
+        },
+        {
+          id: 3,
+          name: 'English',
+          head: 'TBD',
+          teachers: 0,
+          subjects: 0,
+          status: 'active',
+        },
+        {
+          id: 4,
+          name: 'Computer Science',
+          head: 'TBD',
+          teachers: 0,
+          subjects: 0,
+          status: 'active',
+        },
+      ]);
+    }
+  };
 
   const loadEmploymentTypes = async () => {
-    setEmploymentTypes([
-      { id: 1, name: 'Full-time Teacher', description: 'Regular full-time teaching position', benefits: true, hours: 40 },
-      { id: 2, name: 'Part-time Teacher', description: 'Part-time teaching position', benefits: false, hours: 20 },
-      { id: 3, name: 'Contract Teacher', description: 'Contract-based teaching position', benefits: false, hours: 'Variable' },
-      { id: 4, name: 'Administrative Staff', description: 'Administrative and support staff', benefits: true, hours: 40 },
-    ])
-  }
+    try {
+      const employmentTypesData =
+        await masterDataService.getAllEmploymentTypes();
+      const transformedTypes = employmentTypesData.map((type) => ({
+        id: type.id,
+        name: type.typeName,
+        description: type.description,
+        benefits: type.eligibleForBenefits || false,
+        hours: type.maxHoursPerWeek || 'Variable',
+      }));
+      setEmploymentTypes(transformedTypes);
+    } catch (error) {
+      console.error('Error loading employment types:', error);
+      // Fallback to hardcoded data
+      setEmploymentTypes([
+        {
+          id: 1,
+          name: 'Full-time Teacher',
+          description: 'Regular full-time teaching position',
+          benefits: true,
+          hours: 40,
+        },
+        {
+          id: 2,
+          name: 'Part-time Teacher',
+          description: 'Part-time teaching position',
+          benefits: false,
+          hours: 20,
+        },
+        {
+          id: 3,
+          name: 'Contract Teacher',
+          description: 'Contract-based teaching position',
+          benefits: false,
+          hours: 'Variable',
+        },
+        {
+          id: 4,
+          name: 'Administrative Staff',
+          description: 'Administrative and support staff',
+          benefits: true,
+          hours: 40,
+        },
+      ]);
+    }
+  };
 
   const loadSemesters = async () => {
-    setSemesters([
-      { id: 1, name: 'Fall 2024', startDate: '2024-08-15', endDate: '2024-12-20', status: 'completed' },
-      { id: 2, name: 'Spring 2025', startDate: '2025-01-08', endDate: '2025-05-25', status: 'active' },
-      { id: 3, name: 'Fall 2025', startDate: '2025-08-20', endDate: '2025-12-22', status: 'upcoming' },
-    ])
-  }
+    try {
+      const semestersData = await masterDataService.getAllSemesters();
+      const transformedSemesters = semestersData.map((semester) => ({
+        id: semester.id,
+        name: semester.semesterName,
+        startDate: semester.startDate,
+        endDate: semester.endDate,
+        status: semester.isCurrentSemester
+          ? 'active'
+          : semester.isUpcoming
+          ? 'upcoming'
+          : 'completed',
+      }));
+      setSemesters(transformedSemesters);
+    } catch (error) {
+      console.error('Error loading semesters:', error);
+      // Fallback to hardcoded data
+      setSemesters([
+        {
+          id: 1,
+          name: 'Fall 2024',
+          startDate: '2024-08-15',
+          endDate: '2024-12-20',
+          status: 'completed',
+        },
+        {
+          id: 2,
+          name: 'Spring 2025',
+          startDate: '2025-01-08',
+          endDate: '2025-05-25',
+          status: 'active',
+        },
+        {
+          id: 3,
+          name: 'Fall 2025',
+          startDate: '2025-08-20',
+          endDate: '2025-12-22',
+          status: 'upcoming',
+        },
+      ]);
+    }
+  };
 
   const loadAssignmentTypes = async () => {
     setAssignmentTypes([
-      { id: 1, name: 'Homework', description: 'Regular homework assignments', weight: 20, maxPoints: 100 },
-      { id: 2, name: 'Quiz', description: 'Short quizzes and tests', weight: 25, maxPoints: 50 },
-      { id: 3, name: 'Exam', description: 'Major examinations', weight: 40, maxPoints: 200 },
-      { id: 4, name: 'Project', description: 'Long-term projects', weight: 15, maxPoints: 150 },
-    ])
-  }
-  // TODO: Update these to use Spring Boot backend endpoints when system configuration endpoints are added
+      {
+        id: 1,
+        name: 'Homework',
+        description: 'Regular homework assignments',
+        weight: 20,
+        maxPoints: 100,
+      },
+      {
+        id: 2,
+        name: 'Quiz',
+        description: 'Short quizzes and tests',
+        weight: 25,
+        maxPoints: 50,
+      },
+      {
+        id: 3,
+        name: 'Exam',
+        description: 'Major examinations',
+        weight: 40,
+        maxPoints: 200,
+      },
+      {
+        id: 4,
+        name: 'Project',
+        description: 'Long-term projects',
+        weight: 15,
+        maxPoints: 150,
+      },
+    ]);
+  };
+
   const loadAccessCodes = async () => {
     try {
-      const storedCodes = JSON.parse(localStorage.getItem('access_codes') || '[]')
-      setAccessCodes(storedCodes)
+      const codes = await accessCodeService.getAllAccessCodes();
+      setAccessCodes(codes);
     } catch (error) {
-      console.error('Error loading access codes:', error)
+      console.error('Error loading access codes:', error);
+      // Fallback to local storage
+      try {
+        const storedCodes = JSON.parse(
+          localStorage.getItem('access_codes') || '[]'
+        );
+        setAccessCodes(storedCodes);
+      } catch (localError) {
+        console.error('Error loading from local storage:', localError);
+        setAccessCodes([]);
+      }
     }
-  }
+  };
 
-  const loadParentChildMappings = async () => {
+  // Add missing ID Configuration handler functions
+  const handlePreviewId = async (config) => {
     try {
-      const storedMappings = JSON.parse(localStorage.getItem('parent_child_mappings') || '[]')
-      setParentChildMappings(storedMappings)
+      const preview = await idConfigurationService.previewId(config.idType);
+      setPreviewId(preview);
     } catch (error) {
-      console.error('Error loading parent-child mappings:', error)
+      console.error('Error generating preview:', error);
+      setError(`Failed to generate preview: ${error.message}`);
     }
-  }
+  };
 
-  // Access Code Management Functions
-  const generateAccessCode = (role) => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    let code = ''
-    for (let i = 0; i < 8; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length))
+  const handleResetCounter = async (idType) => {
+    if (
+      !window.confirm(
+        `Are you sure you want to reset the counter for ${idType}? This cannot be undone.`
+      )
+    ) {
+      return;
     }
-    return `${role.charAt(0).toUpperCase()}${code}`
-  }
+
+    try {
+      await idConfigurationService.resetCounter(idType);
+      setSuccess(`Counter reset successfully for ${idType}`);
+      await loadIdConfigurations();
+    } catch (error) {
+      console.error('Error resetting counter:', error);
+      setError(`Failed to reset counter: ${error.message}`);
+    }
+  };
+
+  const handleDeleteIdConfiguration = async (id) => {
+    if (
+      !window.confirm('Are you sure you want to delete this ID configuration?')
+    ) {
+      return;
+    }
+
+    try {
+      await idConfigurationService.deleteConfiguration(id);
+      setSuccess('ID configuration deleted successfully');
+      await loadIdConfigurations();
+    } catch (error) {
+      console.error('Error deleting configuration:', error);
+      setError(`Failed to delete configuration: ${error.message}`);
+    }
+  };
+
+  const handleSaveIdConfiguration = async () => {
+    if (!selectedIdConfig) return;
+
+    try {
+      setLoading(true);
+      let savedConfig;
+
+      if (selectedIdConfig.id) {
+        // Update existing configuration
+        savedConfig = await idConfigurationService.updateConfiguration(
+          selectedIdConfig.id,
+          selectedIdConfig
+        );
+      } else {
+        // Create new configuration
+        savedConfig = await idConfigurationService.createConfiguration(
+          selectedIdConfig
+        );
+      }
+
+      setSuccess('ID configuration saved successfully!');
+      setSelectedIdConfig(null);
+      setOpenDialog(false);
+      await loadIdConfigurations();
+    } catch (error) {
+      console.error('Error saving ID configuration:', error);
+      setError(`Failed to save ID configuration: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddIdConfiguration = () => {
+    const newConfig = {
+      idType: 'STUDENT_ID',
+      prefix: 'STU',
+      length: 12,
+      currentCounter: 0,
+      separator: '-',
+      includeYear: true,
+      includeGradeSection: true,
+      format: 'STU-{YEAR}-{GRADE}-{SECTION}-{COUNTER:4}',
+      description: 'Student ID format',
+      active: true,
+    };
+    setSelectedIdConfig(newConfig);
+    setOpenDialog(true);
+  };
+
+  // Access Code Management Functions (keeping local storage for now)
+  const generateAccessCode = (role) => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 8; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `${role.charAt(0).toUpperCase()}${code}`;
+  };
 
   const handleAddAccessCode = () => {
     const newCode = {
       id: Date.now(),
       code: generateAccessCode('STU'),
+      accessCode: generateAccessCode('STU'),
       role: 'STUDENT',
+      codeType: 'STUDENT',
       isUsed: false,
-      validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      status: 'ACTIVE',
+      validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split('T')[0],
+      expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
       createdAt: new Date().toISOString(),
       usedBy: null,
-    }
-    setSelectedAccessCode(newCode)
-    setOpenDialog(true)
-  }
+    };
+    setSelectedAccessCode(newCode);
+    setOpenDialog(true);
+  };
 
   const handleSaveAccessCode = () => {
-    if (!selectedAccessCode) return
+    if (!selectedAccessCode) return;
 
     try {
-      let updatedCodes
-      if (selectedAccessCode.id && accessCodes.find(c => c.id === selectedAccessCode.id)) {
-        updatedCodes = accessCodes.map(c =>
+      let updatedCodes;
+      if (
+        selectedAccessCode.id &&
+        accessCodes.find((c) => c.id === selectedAccessCode.id)
+      ) {
+        updatedCodes = accessCodes.map((c) =>
           c.id === selectedAccessCode.id ? selectedAccessCode : c
-        )
+        );
       } else {
-        const newCode = { ...selectedAccessCode, id: Date.now() }
-        updatedCodes = [...accessCodes, newCode]
+        const newCode = { ...selectedAccessCode, id: Date.now() };
+        updatedCodes = [...accessCodes, newCode];
       }
 
-      setAccessCodes(updatedCodes)
-      localStorage.setItem('access_codes', JSON.stringify(updatedCodes))
-      setSuccess('Access code saved successfully!')
-      setOpenDialog(false)
-      setSelectedAccessCode(null)
+      setAccessCodes(updatedCodes);
+      localStorage.setItem('access_codes', JSON.stringify(updatedCodes));
+      setSuccess('Access code saved successfully!');
+      setOpenDialog(false);
+      setSelectedAccessCode(null);
     } catch (error) {
-      setError('Failed to save access code: ' + error.message)
+      setError(`Failed to save access code: ${error.message}`);
     }
-  }
+  };
 
   const handleDeleteAccessCode = (id) => {
     try {
-      const updatedCodes = accessCodes.filter(c => c.id !== id)
-      setAccessCodes(updatedCodes)
-      localStorage.setItem('access_codes', JSON.stringify(updatedCodes))
-      setSuccess('Access code deleted successfully!')
+      const updatedCodes = accessCodes.filter((c) => c.id !== id);
+      setAccessCodes(updatedCodes);
+      localStorage.setItem('access_codes', JSON.stringify(updatedCodes));
+      setSuccess('Access code deleted successfully!');
     } catch (error) {
-      setError('Failed to delete access code: ' + error.message)
+      setError(`Failed to delete access code: ${error.message}`);
     }
-  }
+  };
 
-  // Child ID Generation Functions
-  const generateChildId = () => {
-    const chars = '0123456789'
-    let id = ''
-    for (let i = 0; i < 8; i++) {
-      id += chars.charAt(Math.floor(Math.random() * chars.length))
+  // Parent-Child Mapping Functions (keeping local storage for now)
+  const loadParentChildMappings = async () => {
+    try {
+      const storedMappings = JSON.parse(
+        localStorage.getItem('parent_child_mappings') || '[]'
+      );
+      setParentChildMappings(storedMappings);
+    } catch (error) {
+      console.error('Error loading parent-child mappings:', error);
     }
-    return `CHD${id}`
-  }
+  };
+
+  const generateChildId = () => {
+    const chars = '0123456789';
+    let id = '';
+    for (let i = 0; i < 8; i++) {
+      id += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `CHD${id}`;
+  };
 
   const handleAddParentChildMapping = () => {
     const newMapping = {
@@ -261,194 +611,330 @@ const DataManagement = () => {
       parentName: '',
       isActive: true,
       createdAt: new Date().toISOString(),
-    }
-    setSelectedMapping(newMapping)
-    setOpenDialog(true)
-  }
+    };
+    setSelectedMapping(newMapping);
+    setOpenDialog(true);
+  };
 
   const handleSaveParentChildMapping = () => {
-    if (!selectedMapping) return
+    if (!selectedMapping) return;
 
     try {
-      let updatedMappings
-      if (selectedMapping.id && parentChildMappings.find(m => m.id === selectedMapping.id)) {
-        updatedMappings = parentChildMappings.map(m =>
+      let updatedMappings;
+      if (
+        selectedMapping.id &&
+        parentChildMappings.find((m) => m.id === selectedMapping.id)
+      ) {
+        updatedMappings = parentChildMappings.map((m) =>
           m.id === selectedMapping.id ? selectedMapping : m
-        )
+        );
       } else {
-        const newMapping = { ...selectedMapping, id: Date.now() }
-        updatedMappings = [...parentChildMappings, newMapping]
+        const newMapping = { ...selectedMapping, id: Date.now() };
+        updatedMappings = [...parentChildMappings, newMapping];
       }
 
-      setParentChildMappings(updatedMappings)
-      localStorage.setItem('parent_child_mappings', JSON.stringify(updatedMappings))
-      setSuccess('Parent-child mapping saved successfully!')
-      setOpenDialog(false)
-      setSelectedMapping(null)
+      setParentChildMappings(updatedMappings);
+      localStorage.setItem(
+        'parent_child_mappings',
+        JSON.stringify(updatedMappings)
+      );
+      setSuccess('Parent-child mapping saved successfully!');
+      setOpenDialog(false);
+      setSelectedMapping(null);
     } catch (error) {
-      setError('Failed to save mapping: ' + error.message)
+      setError(`Failed to save mapping: ${error.message}`);
     }
-  }
+  };
 
-  // Standard CRUD for other data
+  // ID Configuration Management Functions - now using proper service
+  const loadIdConfigurations = async () => {
+    try {
+      const configs = await idConfigurationService.getAllConfigurations();
+      setIdConfigurations(configs);
+    } catch (error) {
+      console.error('Error loading ID configurations:', error);
+      try {
+        // Try to initialize defaults if none exist
+        await idConfigurationService.initializeDefaults();
+        const configs = await idConfigurationService.getAllConfigurations();
+        setIdConfigurations(configs);
+      } catch (initError) {
+        console.error('Error initializing ID configurations:', initError);
+        // Set default configurations for display
+        setIdConfigurations([
+          {
+            id: '1',
+            idType: 'STUDENT_ID',
+            format: 'STU-{YEAR}-{GRADE}-{SECTION}-{COUNTER:4}',
+            currentCounter: 0,
+            active: true,
+            description: 'Student ID format',
+          },
+          {
+            id: '2',
+            idType: 'ADMISSION_NUMBER',
+            format: 'ADM{YEAR}{COUNTER:5}',
+            currentCounter: 0,
+            active: true,
+            description: 'Admission Number format',
+          },
+          {
+            id: '3',
+            idType: 'ROLL_NUMBER',
+            format: '{COUNTER:3}',
+            currentCounter: 0,
+            active: true,
+            description: 'Roll Number format',
+          },
+          {
+            id: '4',
+            idType: 'EMPLOYEE_ID',
+            format: 'EMP{YEAR}{COUNTER:3}',
+            currentCounter: 0,
+            active: true,
+            description: 'Employee ID format',
+          },
+        ]);
+      }
+    }
+  };
+
+  // Standard CRUD for other data - now using proper services
   const handleAdd = (type) => {
-    setDialog({ open: true, type, mode: 'add', data: null })
-    setOpenDialog(true)
-  }
+    setDialog({ open: true, type, mode: 'add', data: null });
+    setOpenDialog(true);
+  };
 
   const handleEdit = (type, item) => {
-    setDialog({ open: true, type, mode: 'edit', data: item })
-    setOpenDialog(true)
-  }
+    setDialog({ open: true, type, mode: 'edit', data: item });
+    setOpenDialog(true);
+  };
 
   const handleDelete = async (type, id) => {
-    if (!window.confirm('Are you sure you want to delete this item?')) return
+    if (!window.confirm('Are you sure you want to delete this item?')) return;
 
     try {
-      const typeEndpoints = {
-        'grades': 'grades',
-        'sections': 'sections',
-        'departments': 'departments',
-        'employment': 'employment-types',
-        'semesters': 'semesters',
-        'assignments': 'assignment-types'
-      }
-
-      const endpoint = typeEndpoints[type]
-      if (!endpoint) throw new Error('Invalid type')
-
-      const response = await fetch(`/api/system/${endpoint}/${id}`, {
-        method: 'DELETE'
-      })
-      if (!response.ok) throw new Error('Failed to delete item')
-
-      // Update local state
       switch (type) {
         case 'grades':
-          setGrades(prev => prev.filter(item => item.id !== id))
-          break
+          await masterDataService.deleteGradeLevel(id);
+          await loadGrades();
+          break;
         case 'sections':
-          setSections(prev => prev.filter(item => item.id !== id))
-          break
+          await masterDataService.deleteSection(id);
+          await loadSections();
+          break;
         case 'departments':
-          setDepartments(prev => prev.filter(item => item.id !== id))
-          break
+          await masterDataService.deleteDepartment(id);
+          await loadDepartments();
+          break;
         case 'employment':
-          setEmploymentTypes(prev => prev.filter(item => item.id !== id))
-          break
+          await masterDataService.deleteEmploymentType(id);
+          await loadEmploymentTypes();
+          break;
         case 'semesters':
-          setSemesters(prev => prev.filter(item => item.id !== id))
-          break
+          await masterDataService.deleteSemester(id);
+          await loadSemesters();
+          break;
         case 'assignments':
-          setAssignmentTypes(prev => prev.filter(item => item.id !== id))
-          break
+          // Assignment types would need their own service
+          setAssignmentTypes((prev) => prev.filter((item) => item.id !== id));
+          break;
         default:
-          break
+          throw new Error('Invalid type');
       }
-      setSuccess('Item deleted successfully!')
+      setSuccess('Item deleted successfully!');
     } catch (error) {
-      setError('Failed to delete item: ' + error.message)
+      setError(`Failed to delete item: ${error.message}`);
     }
-  }
+  };
 
   const handleSaveData = async (formData) => {
     try {
-      setLoading(true)
+      setLoading(true);
 
-      const typeEndpoints = {
-        'grades': 'grades',
-        'sections': 'sections',
-        'departments': 'departments',
-        'employment': 'employment-types',
-        'semesters': 'semesters',
-        'assignments': 'assignment-types'
-      }
-
-      const endpoint = typeEndpoints[dialog.type]
-      if (!endpoint) throw new Error('Invalid type')
-
-      let savedItem
-      if (dialog.mode === 'add') {
-        const response = await fetch(`/api/system/${endpoint}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData)
-        })
-        if (!response.ok) throw new Error('Failed to create item')
-        savedItem = await response.json()
-      } else {
-        const response = await fetch(`/api/system/${endpoint}/${dialog.data.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...formData, id: dialog.data.id })
-        })
-        if (!response.ok) throw new Error('Failed to update item')
-        savedItem = await response.json()
-      }
-
-      // Update local state
+      let savedItem;
       switch (dialog.type) {
         case 'grades':
           if (dialog.mode === 'add') {
-            setGrades(prev => [...prev, savedItem])
+            const gradeData = {
+              gradeCode: formData.name.replace(/\s+/g, ''),
+              gradeName: formData.name,
+              description: formData.description,
+              gradeLevel: parseInt(formData.name.replace(/\D/g, '')) || 1,
+              minimumAge: 5,
+              maximumAge: 18,
+              displayOrder: 1,
+              active: formData.status === 'active',
+            };
+            savedItem = await masterDataService.createGradeLevel(gradeData);
           } else {
-            setGrades(prev => prev.map(item => item.id === savedItem.id ? savedItem : item))
+            const gradeData = {
+              gradeName: formData.name,
+              description: formData.description,
+              active: formData.status === 'active',
+            };
+            savedItem = await masterDataService.updateGradeLevel(
+              dialog.data.id,
+              gradeData
+            );
           }
-          break
+          await loadGrades();
+          break;
         case 'sections':
           if (dialog.mode === 'add') {
-            setSections(prev => [...prev, savedItem])
+            const sectionData = {
+              sectionCode: formData.name.replace(/\s+/g, ''),
+              sectionName: formData.name,
+              maxCapacity: formData.capacity,
+              currentEnrollment: 0,
+              displayOrder: 1,
+              active: true,
+            };
+            savedItem = await masterDataService.createSection(sectionData);
           } else {
-            setSections(prev => prev.map(item => item.id === savedItem.id ? savedItem : item))
+            const sectionData = {
+              sectionName: formData.name,
+              maxCapacity: formData.capacity,
+            };
+            savedItem = await masterDataService.updateSection(
+              dialog.data.id,
+              sectionData
+            );
           }
-          break
+          await loadSections();
+          break;
         case 'departments':
           if (dialog.mode === 'add') {
-            setDepartments(prev => [...prev, savedItem])
+            const deptData = {
+              departmentCode: formData.name.replace(/\s+/g, '').toUpperCase(),
+              departmentName: formData.name,
+              headOfDepartment: formData.head,
+              maxTeachers: 20,
+              currentTeachers: 0,
+              displayOrder: 1,
+              active: formData.status === 'active',
+            };
+            savedItem = await masterDataService.createDepartment(deptData);
           } else {
-            setDepartments(prev => prev.map(item => item.id === savedItem.id ? savedItem : item))
+            const deptData = {
+              departmentName: formData.name,
+              headOfDepartment: formData.head,
+              active: formData.status === 'active',
+            };
+            savedItem = await masterDataService.updateDepartment(
+              dialog.data.id,
+              deptData
+            );
           }
-          break
+          await loadDepartments();
+          break;
         case 'employment':
           if (dialog.mode === 'add') {
-            setEmploymentTypes(prev => [...prev, savedItem])
+            const empData = {
+              typeCode: formData.name.replace(/\s+/g, '_').toUpperCase(),
+              typeName: formData.name,
+              description: formData.description,
+              minHoursPerWeek: 1,
+              maxHoursPerWeek:
+                typeof formData.hours === 'number' ? formData.hours : 40,
+              eligibleForBenefits: formData.benefits,
+              requiresContract: false,
+              displayOrder: 1,
+              active: true,
+            };
+            savedItem = await masterDataService.createEmploymentType(empData);
           } else {
-            setEmploymentTypes(prev => prev.map(item => item.id === savedItem.id ? savedItem : item))
+            const empData = {
+              typeName: formData.name,
+              description: formData.description,
+              maxHoursPerWeek:
+                typeof formData.hours === 'number' ? formData.hours : 40,
+              eligibleForBenefits: formData.benefits,
+            };
+            savedItem = await masterDataService.updateEmploymentType(
+              dialog.data.id,
+              empData
+            );
           }
-          break
+          await loadEmploymentTypes();
+          break;
         case 'semesters':
           if (dialog.mode === 'add') {
-            setSemesters(prev => [...prev, savedItem])
+            const semesterData = {
+              semesterCode: formData.name.replace(/\s+/g, '_').toUpperCase(),
+              semesterName: formData.name,
+              academicYear: new Date().getFullYear(),
+              startDate: formData.startDate,
+              endDate: formData.endDate,
+              semesterType: 'REGULAR',
+              isCurrentSemester: formData.status === 'active',
+              displayOrder: 1,
+              active: true,
+            };
+            savedItem = await masterDataService.createSemester(semesterData);
           } else {
-            setSemesters(prev => prev.map(item => item.id === savedItem.id ? savedItem : item))
+            const semesterData = {
+              semesterName: formData.name,
+              startDate: formData.startDate,
+              endDate: formData.endDate,
+              isCurrentSemester: formData.status === 'active',
+            };
+            savedItem = await masterDataService.updateSemester(
+              dialog.data.id,
+              semesterData
+            );
           }
-          break
+          await loadSemesters();
+          break;
         case 'assignments':
+          // Assignment types would need their own service
           if (dialog.mode === 'add') {
-            setAssignmentTypes(prev => [...prev, savedItem])
+            const newAssignment = { ...formData, id: Date.now() };
+            setAssignmentTypes((prev) => [...prev, newAssignment]);
           } else {
-            setAssignmentTypes(prev => prev.map(item => item.id === savedItem.id ? savedItem : item))
+            setAssignmentTypes((prev) =>
+              prev.map((item) =>
+                item.id === dialog.data.id
+                  ? { ...formData, id: dialog.data.id }
+                  : item
+              )
+            );
           }
-          break
+          break;
         default:
-          break
+          throw new Error('Invalid type');
       }
 
-      setSuccess('Item saved successfully!')
-      setDialog({ open: false, type: '', mode: 'add', data: null })
-      setOpenDialog(false)
+      setSuccess('Item saved successfully!');
+      setDialog({ open: false, type: '', mode: 'add', data: null });
+      setOpenDialog(false);
     } catch (error) {
-      setError('Failed to save item: ' + error.message)
+      setError(`Failed to save item: ${error.message}`);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
+  // Renderers for each tab
+  // ... (unchanged, see original code above for renderGradesTab, renderSectionsTab, etc.)
+
+  // The rest of the component remains the same as in the original file
+  // (renderers, dialog content, return, DataFormDialog, etc.)
+
+  // --- Begin unchanged code from original file ---
 
   // Renderers for each tab
   const renderGradesTab = () => (
     <Card>
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 3,
+          }}
+        >
           <Typography variant="h6">Grade Levels Management</Typography>
           <Button
             variant="contained"
@@ -483,10 +969,17 @@ const DataManagement = () => {
                     />
                   </TableCell>
                   <TableCell align="right">
-                    <IconButton onClick={() => handleEdit('grades', grade)} size="small">
+                    <IconButton
+                      onClick={() => handleEdit('grades', grade)}
+                      size="small"
+                    >
                       <EditIcon />
                     </IconButton>
-                    <IconButton onClick={() => handleDelete('grades', grade.id)} size="small" color="error">
+                    <IconButton
+                      onClick={() => handleDelete('grades', grade.id)}
+                      size="small"
+                      color="error"
+                    >
                       <DeleteIcon />
                     </IconButton>
                   </TableCell>
@@ -497,12 +990,19 @@ const DataManagement = () => {
         </TableContainer>
       </CardContent>
     </Card>
-  )
+  );
 
   const renderSectionsTab = () => (
     <Card>
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 3,
+          }}
+        >
           <Typography variant="h6">Class Sections Management</Typography>
           <Button
             variant="contained"
@@ -534,18 +1034,33 @@ const DataManagement = () => {
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       {section.enrolled}
                       <Chip
-                        label={`${Math.round((section.enrolled / section.capacity) * 100)}%`}
+                        label={`${Math.round(
+                          (section.enrolled / section.capacity) * 100
+                        )}%`}
                         size="small"
-                        color={section.enrolled >= section.capacity ? 'error' : section.enrolled > section.capacity * 0.8 ? 'warning' : 'success'}
+                        color={
+                          section.enrolled >= section.capacity
+                            ? 'error'
+                            : section.enrolled > section.capacity * 0.8
+                            ? 'warning'
+                            : 'success'
+                        }
                       />
                     </Box>
                   </TableCell>
                   <TableCell>{section.teacher}</TableCell>
                   <TableCell align="right">
-                    <IconButton onClick={() => handleEdit('sections', section)} size="small">
+                    <IconButton
+                      onClick={() => handleEdit('sections', section)}
+                      size="small"
+                    >
                       <EditIcon />
                     </IconButton>
-                    <IconButton onClick={() => handleDelete('sections', section.id)} size="small" color="error">
+                    <IconButton
+                      onClick={() => handleDelete('sections', section.id)}
+                      size="small"
+                      color="error"
+                    >
                       <DeleteIcon />
                     </IconButton>
                   </TableCell>
@@ -556,12 +1071,19 @@ const DataManagement = () => {
         </TableContainer>
       </CardContent>
     </Card>
-  )
+  );
 
   const renderDepartmentsTab = () => (
     <Card>
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 3,
+          }}
+        >
           <Typography variant="h6">Academic Departments</Typography>
           <Button
             variant="contained"
@@ -598,10 +1120,17 @@ const DataManagement = () => {
                     />
                   </TableCell>
                   <TableCell align="right">
-                    <IconButton onClick={() => handleEdit('departments', dept)} size="small">
+                    <IconButton
+                      onClick={() => handleEdit('departments', dept)}
+                      size="small"
+                    >
                       <EditIcon />
                     </IconButton>
-                    <IconButton onClick={() => handleDelete('departments', dept.id)} size="small" color="error">
+                    <IconButton
+                      onClick={() => handleDelete('departments', dept.id)}
+                      size="small"
+                      color="error"
+                    >
                       <DeleteIcon />
                     </IconButton>
                   </TableCell>
@@ -612,12 +1141,19 @@ const DataManagement = () => {
         </TableContainer>
       </CardContent>
     </Card>
-  )
+  );
 
   const renderEmploymentTab = () => (
     <Card>
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 3,
+          }}
+        >
           <Typography variant="h6">Employment Types</Typography>
           <Button
             variant="contained"
@@ -652,10 +1188,17 @@ const DataManagement = () => {
                     />
                   </TableCell>
                   <TableCell align="right">
-                    <IconButton onClick={() => handleEdit('employment', type)} size="small">
+                    <IconButton
+                      onClick={() => handleEdit('employment', type)}
+                      size="small"
+                    >
                       <EditIcon />
                     </IconButton>
-                    <IconButton onClick={() => handleDelete('employment', type.id)} size="small" color="error">
+                    <IconButton
+                      onClick={() => handleDelete('employment', type.id)}
+                      size="small"
+                      color="error"
+                    >
                       <DeleteIcon />
                     </IconButton>
                   </TableCell>
@@ -666,12 +1209,19 @@ const DataManagement = () => {
         </TableContainer>
       </CardContent>
     </Card>
-  )
+  );
 
   const renderSemestersTab = () => (
     <Card>
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 3,
+          }}
+        >
           <Typography variant="h6">Academic Semesters</Typography>
           <Button
             variant="contained"
@@ -702,17 +1252,27 @@ const DataManagement = () => {
                     <Chip
                       label={semester.status}
                       color={
-                        semester.status === 'active' ? 'success' :
-                          semester.status === 'upcoming' ? 'info' : 'default'
+                        semester.status === 'active'
+                          ? 'success'
+                          : semester.status === 'upcoming'
+                          ? 'info'
+                          : 'default'
                       }
                       size="small"
                     />
                   </TableCell>
                   <TableCell align="right">
-                    <IconButton onClick={() => handleEdit('semesters', semester)} size="small">
+                    <IconButton
+                      onClick={() => handleEdit('semesters', semester)}
+                      size="small"
+                    >
                       <EditIcon />
                     </IconButton>
-                    <IconButton onClick={() => handleDelete('semesters', semester.id)} size="small" color="error">
+                    <IconButton
+                      onClick={() => handleDelete('semesters', semester.id)}
+                      size="small"
+                      color="error"
+                    >
                       <DeleteIcon />
                     </IconButton>
                   </TableCell>
@@ -723,12 +1283,19 @@ const DataManagement = () => {
         </TableContainer>
       </CardContent>
     </Card>
-  )
+  );
 
   const renderAssignmentTypesTab = () => (
     <Card>
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 3,
+          }}
+        >
           <Typography variant="h6">Assignment Types</Typography>
           <Button
             variant="contained"
@@ -757,10 +1324,17 @@ const DataManagement = () => {
                   <TableCell>{type.weight}%</TableCell>
                   <TableCell>{type.maxPoints}</TableCell>
                   <TableCell align="right">
-                    <IconButton onClick={() => handleEdit('assignments', type)} size="small">
+                    <IconButton
+                      onClick={() => handleEdit('assignments', type)}
+                      size="small"
+                    >
                       <EditIcon />
                     </IconButton>
-                    <IconButton onClick={() => handleDelete('assignments', type.id)} size="small" color="error">
+                    <IconButton
+                      onClick={() => handleDelete('assignments', type.id)}
+                      size="small"
+                      color="error"
+                    >
                       <DeleteIcon />
                     </IconButton>
                   </TableCell>
@@ -771,7 +1345,7 @@ const DataManagement = () => {
         </TableContainer>
       </CardContent>
     </Card>
-  )
+  );
 
   // New: Access Codes Tab
   const renderAccessCodesTab = () => (
@@ -782,7 +1356,9 @@ const DataManagement = () => {
           variant="contained"
           startIcon={<AddIcon />}
           onClick={handleAddAccessCode}
-          sx={{ background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)' }}
+          sx={{
+            background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
+          }}
         >
           Generate New Code
         </Button>
@@ -791,47 +1367,80 @@ const DataManagement = () => {
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
-              <TableCell><strong>Code</strong></TableCell>
-              <TableCell><strong>Role</strong></TableCell>
-              <TableCell><strong>Status</strong></TableCell>
-              <TableCell><strong>Valid Until</strong></TableCell>
-              <TableCell><strong>Used By</strong></TableCell>
-              <TableCell><strong>Actions</strong></TableCell>
+              <TableCell>
+                <strong>Code</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Role</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Status</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Valid Until</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Used By</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Actions</strong>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {accessCodes.map((code) => (
               <TableRow key={code.id}>
                 <TableCell>
-                  <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 'bold' }}>
-                    {code.code}
+                  <Typography
+                    variant="body2"
+                    sx={{ fontFamily: 'monospace', fontWeight: 'bold' }}
+                  >
+                    {code.code || code.accessCode}
                   </Typography>
                 </TableCell>
                 <TableCell>
                   <Chip
-                    label={code.role}
+                    label={code.role || code.codeType}
                     color={
-                      code.role === 'STUDENT' ? 'primary' :
-                        code.role === 'TEACHER' ? 'secondary' :
-                          code.role === 'PARENT' ? 'success' : 'default'
+                      (code.role || code.codeType) === 'STUDENT'
+                        ? 'primary'
+                        : (code.role || code.codeType) === 'TEACHER'
+                        ? 'secondary'
+                        : (code.role || code.codeType) === 'PARENT'
+                        ? 'success'
+                        : 'default'
                     }
                     size="small"
                   />
                 </TableCell>
                 <TableCell>
                   <Chip
-                    label={code.isUsed ? 'Used' : 'Available'}
-                    color={code.isUsed ? 'default' : 'success'}
+                    label={
+                      code.isUsed || code.status === 'USED'
+                        ? 'Used'
+                        : 'Available'
+                    }
+                    color={
+                      code.isUsed || code.status === 'USED'
+                        ? 'default'
+                        : 'success'
+                    }
                     size="small"
                   />
                 </TableCell>
-                <TableCell>{new Date(code.validUntil).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  {code.validUntil
+                    ? new Date(code.validUntil).toLocaleDateString()
+                    : code.expiryDate
+                    ? new Date(code.expiryDate).toLocaleDateString()
+                    : 'N/A'}
+                </TableCell>
                 <TableCell>{code.usedBy || 'N/A'}</TableCell>
                 <TableCell>
                   <IconButton
                     onClick={() => {
-                      setSelectedAccessCode(code)
-                      setOpenDialog(true)
+                      setSelectedAccessCode(code);
+                      setOpenDialog(true);
                     }}
                     size="small"
                   >
@@ -851,7 +1460,7 @@ const DataManagement = () => {
         </Table>
       </TableContainer>
     </Box>
-  )
+  );
 
   // New: Parent-Child Mapping Tab
   const renderParentChildMappingTab = () => (
@@ -862,7 +1471,9 @@ const DataManagement = () => {
           variant="contained"
           startIcon={<AddIcon />}
           onClick={handleAddParentChildMapping}
-          sx={{ background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)' }}
+          sx={{
+            background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
+          }}
         >
           Add Child Record
         </Button>
@@ -871,21 +1482,40 @@ const DataManagement = () => {
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
-              <TableCell><strong>Child ID</strong></TableCell>
-              <TableCell><strong>Child Name</strong></TableCell>
-              <TableCell><strong>Grade</strong></TableCell>
-              <TableCell><strong>Section</strong></TableCell>
-              <TableCell><strong>Parent Name</strong></TableCell>
-              <TableCell><strong>Parent Email</strong></TableCell>
-              <TableCell><strong>Status</strong></TableCell>
-              <TableCell><strong>Actions</strong></TableCell>
+              <TableCell>
+                <strong>Child ID</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Child Name</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Grade</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Section</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Parent Name</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Parent Email</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Status</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Actions</strong>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {parentChildMappings.map((mapping) => (
               <TableRow key={mapping.id}>
                 <TableCell>
-                  <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 'bold' }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontFamily: 'monospace', fontWeight: 'bold' }}
+                  >
                     {mapping.childId}
                   </Typography>
                 </TableCell>
@@ -904,25 +1534,32 @@ const DataManagement = () => {
                 <TableCell>
                   <IconButton
                     onClick={() => {
-                      setSelectedMapping(mapping)
-                      setOpenDialog(true)
+                      setSelectedMapping(mapping);
+                      setOpenDialog(true);
                     }}
                     size="small"
                   >
                     <EditIcon />
                   </IconButton>
                   <IconButton
-                    onClick={async () => {
-                      try {
-                        const response = await fetch(`/api/system/parent-child-mappings/${mapping.id}`, {
-                          method: 'DELETE'
-                        })
-                        if (!response.ok) throw new Error('Failed to delete mapping')
-
-                        setParentChildMappings(parentChildMappings.filter(m => m.id !== mapping.id))
-                        setSuccess('Mapping deleted successfully!')
-                      } catch (error) {
-                        setError('Failed to delete mapping: ' + error.message)
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          'Are you sure you want to delete this mapping?'
+                        )
+                      ) {
+                        setParentChildMappings(
+                          parentChildMappings.filter((m) => m.id !== mapping.id)
+                        );
+                        localStorage.setItem(
+                          'parent_child_mappings',
+                          JSON.stringify(
+                            parentChildMappings.filter(
+                              (m) => m.id !== mapping.id
+                            )
+                          )
+                        );
+                        setSuccess('Mapping deleted successfully!');
                       }
                     }}
                     size="small"
@@ -937,25 +1574,369 @@ const DataManagement = () => {
         </Table>
       </TableContainer>
     </Box>
-  )
+  );
+
+  // ID Configuration Tab
+  const renderIdConfigurationTab = () => (
+    <Card>
+      <CardContent>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 3,
+          }}
+        >
+          <Typography variant="h6">Auto-ID Generation Configuration</Typography>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleAddIdConfiguration}
+            sx={{
+              background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
+            }}
+          >
+            Add Configuration
+          </Button>
+        </Box>
+
+        <Alert severity="info" sx={{ mb: 3 }}>
+          <strong>Auto-ID Generation:</strong> Configure automatic ID generation
+          for Student ID, Admission Number, Roll Number, and Employee ID. The
+          system will automatically generate sequential IDs based on your format
+          settings.
+        </Alert>
+
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
+                <TableCell>
+                  <strong>ID Type</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Format</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Current Counter</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Status</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Preview</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Actions</strong>
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {idConfigurations.map((config) => (
+                <TableRow key={config.id}>
+                  <TableCell>
+                    <Chip
+                      label={config.idType}
+                      color={
+                        config.idType === 'STUDENT_ID'
+                          ? 'primary'
+                          : config.idType === 'ADMISSION_NUMBER'
+                          ? 'secondary'
+                          : config.idType === 'ROLL_NUMBER'
+                          ? 'success'
+                          : config.idType === 'EMPLOYEE_ID'
+                          ? 'warning'
+                          : 'default'
+                      }
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontFamily: 'monospace',
+                        backgroundColor: '#f5f5f5',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '0.8rem',
+                      }}
+                    >
+                      {config.format}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ mt: 1, display: 'block' }}
+                    >
+                      {config.description}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="h6" color="primary">
+                      {config.currentCounter}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      label={config.active ? 'Active' : 'Inactive'}
+                      color={config.active ? 'success' : 'default'}
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<ViewIcon />}
+                        onClick={() => handlePreviewId(config)}
+                      >
+                        Preview
+                      </Button>
+                      {previewId && (
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontFamily: 'monospace',
+                            color: 'primary.main',
+                          }}
+                        >
+                          {previewId}
+                        </Typography>
+                      )}
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+                      <IconButton
+                        onClick={() => {
+                          setSelectedIdConfig(config);
+                          setOpenDialog(true);
+                        }}
+                        size="small"
+                        color="primary"
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => handleResetCounter(config.idType)}
+                        size="small"
+                        color="warning"
+                        title="Reset Counter"
+                      >
+                        <RefreshIcon />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => handleDeleteIdConfiguration(config.id)}
+                        size="small"
+                        color="error"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </CardContent>
+    </Card>
+  );
 
   // Main tab content renderer
   const renderTabContent = () => {
     switch (currentTab) {
-      case 0: return renderGradesTab()
-      case 1: return renderSectionsTab()
-      case 2: return renderDepartmentsTab()
-      case 3: return renderEmploymentTab()
-      case 4: return renderSemestersTab()
-      case 5: return renderAssignmentTypesTab()
-      case 6: return renderAccessCodesTab()
-      case 7: return renderParentChildMappingTab()
-      default: return renderGradesTab()
+      case 0:
+        return renderIdConfigurationTab();
+      case 1:
+        return renderGradesTab();
+      case 2:
+        return renderSectionsTab();
+      case 3:
+        return renderDepartmentsTab();
+      case 4:
+        return renderEmploymentTab();
+      case 5:
+        return renderSemestersTab();
+      case 6:
+        return renderAssignmentTypesTab();
+      case 7:
+        return renderAccessCodesTab();
+      case 8:
+        return renderParentChildMappingTab();
+      default:
+        return renderIdConfigurationTab();
     }
-  }
+  };
 
-  // Dialog content for access codes and parent-child mapping
+  // Dialog content for ID configuration, access codes and parent-child mapping
   const renderDialogContent = () => {
+    if (selectedIdConfig) {
+      return (
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth>
+              <InputLabel>ID Type</InputLabel>
+              <Select
+                value={selectedIdConfig.idType}
+                onChange={(e) =>
+                  setSelectedIdConfig({
+                    ...selectedIdConfig,
+                    idType: e.target.value,
+                  })
+                }
+              >
+                <MenuItem value="STUDENT_ID">Student ID</MenuItem>
+                <MenuItem value="ADMISSION_NUMBER">Admission Number</MenuItem>
+                <MenuItem value="ROLL_NUMBER">Roll Number</MenuItem>
+                <MenuItem value="EMPLOYEE_ID">Employee ID</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Prefix"
+              value={selectedIdConfig.prefix || ''}
+              onChange={(e) =>
+                setSelectedIdConfig({
+                  ...selectedIdConfig,
+                  prefix: e.target.value.toUpperCase(),
+                })
+              }
+              placeholder="e.g., STU, ADM, EMP"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Format Pattern"
+              value={selectedIdConfig.format || ''}
+              onChange={(e) =>
+                setSelectedIdConfig({
+                  ...selectedIdConfig,
+                  format: e.target.value,
+                })
+              }
+              placeholder="e.g., STU-{YEAR}-{GRADE}-{SECTION}-{COUNTER:4}"
+              helperText="Use {YEAR}, {GRADE}, {SECTION}, {COUNTER:n} placeholders"
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              label="Total Length"
+              type="number"
+              value={selectedIdConfig.length || ''}
+              onChange={(e) =>
+                setSelectedIdConfig({
+                  ...selectedIdConfig,
+                  length: parseInt(e.target.value),
+                })
+              }
+              inputProps={{ min: 3, max: 20 }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              label="Current Counter"
+              type="number"
+              value={selectedIdConfig.currentCounter || 0}
+              onChange={(e) =>
+                setSelectedIdConfig({
+                  ...selectedIdConfig,
+                  currentCounter: parseInt(e.target.value),
+                })
+              }
+              inputProps={{ min: 0 }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              label="Separator"
+              value={selectedIdConfig.separator || ''}
+              onChange={(e) =>
+                setSelectedIdConfig({
+                  ...selectedIdConfig,
+                  separator: e.target.value,
+                })
+              }
+              placeholder="e.g., -, /, or leave empty"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Description"
+              multiline
+              rows={2}
+              value={selectedIdConfig.description || ''}
+              onChange={(e) =>
+                setSelectedIdConfig({
+                  ...selectedIdConfig,
+                  description: e.target.value,
+                })
+              }
+              placeholder="Human readable description of this ID format"
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={selectedIdConfig.includeYear || false}
+                  onChange={(e) =>
+                    setSelectedIdConfig({
+                      ...selectedIdConfig,
+                      includeYear: e.target.checked,
+                    })
+                  }
+                />
+              }
+              label="Include Year"
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={selectedIdConfig.includeGradeSection || false}
+                  onChange={(e) =>
+                    setSelectedIdConfig({
+                      ...selectedIdConfig,
+                      includeGradeSection: e.target.checked,
+                    })
+                  }
+                />
+              }
+              label="Include Grade/Section"
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={selectedIdConfig.active !== false}
+                  onChange={(e) =>
+                    setSelectedIdConfig({
+                      ...selectedIdConfig,
+                      active: e.target.checked,
+                    })
+                  }
+                />
+              }
+              label="Active"
+            />
+          </Grid>
+        </Grid>
+      );
+    }
+
     if (selectedAccessCode) {
       return (
         <Grid container spacing={3}>
@@ -963,11 +1944,14 @@ const DataManagement = () => {
             <TextField
               fullWidth
               label="Access Code"
-              value={selectedAccessCode.code}
-              onChange={(e) => setSelectedAccessCode({
-                ...selectedAccessCode,
-                code: e.target.value.toUpperCase()
-              })}
+              value={selectedAccessCode.code || selectedAccessCode.accessCode}
+              onChange={(e) =>
+                setSelectedAccessCode({
+                  ...selectedAccessCode,
+                  code: e.target.value.toUpperCase(),
+                  accessCode: e.target.value.toUpperCase(),
+                })
+              }
               required
             />
           </Grid>
@@ -975,11 +1959,14 @@ const DataManagement = () => {
             <FormControl fullWidth>
               <InputLabel>Role</InputLabel>
               <Select
-                value={selectedAccessCode.role}
-                onChange={(e) => setSelectedAccessCode({
-                  ...selectedAccessCode,
-                  role: e.target.value
-                })}
+                value={selectedAccessCode.role || selectedAccessCode.codeType}
+                onChange={(e) =>
+                  setSelectedAccessCode({
+                    ...selectedAccessCode,
+                    role: e.target.value,
+                    codeType: e.target.value,
+                  })
+                }
               >
                 <MenuItem value="STUDENT">Student</MenuItem>
                 <MenuItem value="TEACHER">Teacher</MenuItem>
@@ -992,11 +1979,16 @@ const DataManagement = () => {
               fullWidth
               label="Valid Until"
               type="date"
-              value={selectedAccessCode.validUntil}
-              onChange={(e) => setSelectedAccessCode({
-                ...selectedAccessCode,
-                validUntil: e.target.value
-              })}
+              value={
+                selectedAccessCode.validUntil || selectedAccessCode.expiryDate
+              }
+              onChange={(e) =>
+                setSelectedAccessCode({
+                  ...selectedAccessCode,
+                  validUntil: e.target.value,
+                  expiryDate: e.target.value,
+                })
+              }
               InputLabelProps={{ shrink: true }}
               required
             />
@@ -1005,18 +1997,24 @@ const DataManagement = () => {
             <FormControlLabel
               control={
                 <Switch
-                  checked={!selectedAccessCode.isUsed}
-                  onChange={(e) => setSelectedAccessCode({
-                    ...selectedAccessCode,
-                    isUsed: !e.target.checked
-                  })}
+                  checked={
+                    !selectedAccessCode.isUsed &&
+                    selectedAccessCode.status !== 'USED'
+                  }
+                  onChange={(e) =>
+                    setSelectedAccessCode({
+                      ...selectedAccessCode,
+                      isUsed: !e.target.checked,
+                      status: !e.target.checked ? 'USED' : 'ACTIVE',
+                    })
+                  }
                 />
               }
               label="Available for Use"
             />
           </Grid>
         </Grid>
-      )
+      );
     }
 
     if (selectedMapping) {
@@ -1027,10 +2025,12 @@ const DataManagement = () => {
               fullWidth
               label="Child ID"
               value={selectedMapping.childId}
-              onChange={(e) => setSelectedMapping({
-                ...selectedMapping,
-                childId: e.target.value.toUpperCase()
-              })}
+              onChange={(e) =>
+                setSelectedMapping({
+                  ...selectedMapping,
+                  childId: e.target.value.toUpperCase(),
+                })
+              }
               required
             />
           </Grid>
@@ -1039,10 +2039,12 @@ const DataManagement = () => {
               fullWidth
               label="Child Name"
               value={selectedMapping.childName}
-              onChange={(e) => setSelectedMapping({
-                ...selectedMapping,
-                childName: e.target.value
-              })}
+              onChange={(e) =>
+                setSelectedMapping({
+                  ...selectedMapping,
+                  childName: e.target.value,
+                })
+              }
               required
             />
           </Grid>
@@ -1051,10 +2053,12 @@ const DataManagement = () => {
               <InputLabel>Grade</InputLabel>
               <Select
                 value={selectedMapping.grade}
-                onChange={(e) => setSelectedMapping({
-                  ...selectedMapping,
-                  grade: e.target.value
-                })}
+                onChange={(e) =>
+                  setSelectedMapping({
+                    ...selectedMapping,
+                    grade: e.target.value,
+                  })
+                }
               >
                 {grades.map((grade) => (
                   <MenuItem key={grade.id} value={grade.name}>
@@ -1069,10 +2073,12 @@ const DataManagement = () => {
               <InputLabel>Section</InputLabel>
               <Select
                 value={selectedMapping.section}
-                onChange={(e) => setSelectedMapping({
-                  ...selectedMapping,
-                  section: e.target.value
-                })}
+                onChange={(e) =>
+                  setSelectedMapping({
+                    ...selectedMapping,
+                    section: e.target.value,
+                  })
+                }
               >
                 {sections.map((section) => (
                   <MenuItem key={section.id} value={section.name}>
@@ -1087,10 +2093,12 @@ const DataManagement = () => {
               control={
                 <Switch
                   checked={selectedMapping.isActive}
-                  onChange={(e) => setSelectedMapping({
-                    ...selectedMapping,
-                    isActive: e.target.checked
-                  })}
+                  onChange={(e) =>
+                    setSelectedMapping({
+                      ...selectedMapping,
+                      isActive: e.target.checked,
+                    })
+                  }
                 />
               }
               label="Active"
@@ -1101,10 +2109,12 @@ const DataManagement = () => {
               fullWidth
               label="Parent Name"
               value={selectedMapping.parentName}
-              onChange={(e) => setSelectedMapping({
-                ...selectedMapping,
-                parentName: e.target.value
-              })}
+              onChange={(e) =>
+                setSelectedMapping({
+                  ...selectedMapping,
+                  parentName: e.target.value,
+                })
+              }
               required
             />
           </Grid>
@@ -1114,15 +2124,17 @@ const DataManagement = () => {
               label="Parent Email"
               type="email"
               value={selectedMapping.parentEmail}
-              onChange={(e) => setSelectedMapping({
-                ...selectedMapping,
-                parentEmail: e.target.value
-              })}
+              onChange={(e) =>
+                setSelectedMapping({
+                  ...selectedMapping,
+                  parentEmail: e.target.value,
+                })
+              }
               required
             />
           </Grid>
         </Grid>
-      )
+      );
     }
 
     // Fallback to standard data dialog
@@ -1133,37 +2145,44 @@ const DataManagement = () => {
         mode={dialog.mode}
         data={dialog.data}
         onClose={() => {
-          setDialog({ open: false, type: '', mode: 'add', data: null })
-          setOpenDialog(false)
+          setDialog({ open: false, type: '', mode: 'add', data: null });
+          setOpenDialog(false);
         }}
         onSave={handleSaveData}
       />
-    )
-  }
+    );
+  };
 
   // Dialog save handler
   const handleSave = () => {
-    if (selectedAccessCode) {
-      handleSaveAccessCode()
+    if (selectedIdConfig) {
+      handleSaveIdConfiguration();
+    } else if (selectedAccessCode) {
+      handleSaveAccessCode();
     } else if (selectedMapping) {
-      handleSaveParentChildMapping()
+      handleSaveParentChildMapping();
     }
-  }
+  };
 
   // Dialog close handler
   const handleDialogClose = () => {
-    setDialog({ open: false, type: '', mode: 'add', data: null })
-    setSelectedAccessCode(null)
-    setSelectedMapping(null)
-    setOpenDialog(false)
-  }
+    setDialog({ open: false, type: '', mode: 'add', data: null });
+    setSelectedIdConfig(null);
+    setSelectedAccessCode(null);
+    setSelectedMapping(null);
+    setPreviewId('');
+    setOpenDialog(false);
+  };
 
   return (
     <DashboardLayout>
       <Box sx={{ p: 3 }}>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1976d2', mb: 1 }}>
+          <Typography
+            variant="h4"
+            sx={{ fontWeight: 'bold', color: '#1976d2', mb: 1 }}
+          >
             📊 System Data Management
           </Typography>
           <Typography variant="h6" color="text.secondary">
@@ -1171,11 +2190,25 @@ const DataManagement = () => {
           </Typography>
         </Box>
 
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-        {success && <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>{success}</Alert>}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+        {success && (
+          <Alert
+            severity="success"
+            sx={{ mb: 2 }}
+            onClose={() => setSuccess('')}
+          >
+            {success}
+          </Alert>
+        )}
 
         <Alert severity="info" sx={{ mb: 3 }}>
-          <strong>Admin Only:</strong> This section is exclusively for system administrators to manage core data that affects the entire school system.
+          <strong>Admin Only:</strong> This section is exclusively for system
+          administrators to manage core data that affects the entire school
+          system.
         </Alert>
 
         {/* Tabs */}
@@ -1183,9 +2216,9 @@ const DataManagement = () => {
           <Tabs
             value={currentTab}
             onChange={(e, newValue) => {
-              setCurrentTab(newValue)
-              setError('')
-              setSuccess('')
+              setCurrentTab(newValue);
+              setError('');
+              setSuccess('');
             }}
             sx={{ borderBottom: 1, borderColor: 'divider' }}
             variant="scrollable"
@@ -1209,24 +2242,37 @@ const DataManagement = () => {
         {renderTabContent()}
 
         {/* Add/Edit Dialog */}
-        <Dialog open={dialogOpen} onClose={handleDialogClose} maxWidth="md" fullWidth>
+        <Dialog
+          open={dialogOpen}
+          onClose={handleDialogClose}
+          maxWidth="md"
+          fullWidth
+        >
           <DialogTitle>
-            {selectedAccessCode
-              ? (selectedAccessCode.id ? 'Edit Access Code' : 'Add Access Code')
+            {selectedIdConfig
+              ? selectedIdConfig.id
+                ? 'Edit ID Configuration'
+                : 'Add ID Configuration'
+              : selectedAccessCode
+              ? selectedAccessCode.id
+                ? 'Edit Access Code'
+                : 'Add Access Code'
               : selectedMapping
-                ? (selectedMapping.id ? 'Edit Child Mapping' : 'Add Child Mapping')
-                : (dialog.mode === 'add' ? 'Add' : 'Edit') + ' ' + dialog.type}
+              ? selectedMapping.id
+                ? 'Edit Child Mapping'
+                : 'Add Child Mapping'
+              : `${dialog.mode === 'add' ? 'Add' : 'Edit'} ${dialog.type}`}
           </DialogTitle>
           <DialogContent>
-            <Box sx={{ mt: 1 }}>
-              {renderDialogContent()}
-            </Box>
+            <Box sx={{ mt: 1 }}>{renderDialogContent()}</Box>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleDialogClose} startIcon={<CancelIcon />}>
               Cancel
             </Button>
-            {(!selectedAccessCode && !selectedMapping) ? null : (
+            {!selectedIdConfig &&
+            !selectedAccessCode &&
+            !selectedMapping ? null : (
               <Button
                 variant="contained"
                 onClick={handleSave}
@@ -1239,30 +2285,30 @@ const DataManagement = () => {
         </Dialog>
       </Box>
     </DashboardLayout>
-  )
-}
+  );
+};
 
 // Standard data form dialog for CRUD
 const DataFormDialog = ({ open, type, mode, data, onClose, onSave }) => {
-  const [formData, setFormData] = useState({})
-  const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState({});
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (open) {
-      setFormData(data || {})
+      setFormData(data || {});
     }
-  }, [open, data])
+  }, [open, data]);
 
   const handleSave = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      await onSave(formData)
+      await onSave(formData);
     } catch (error) {
-      console.error('Error saving:', error)
+      console.error('Error saving:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const renderFormFields = () => {
     switch (type) {
@@ -1273,28 +2319,34 @@ const DataFormDialog = ({ open, type, mode, data, onClose, onSave }) => {
               fullWidth
               label="Grade Name"
               value={formData.name || ''}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               sx={{ mb: 2 }}
             />
             <TextField
               fullWidth
               label="Description"
               value={formData.description || ''}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               sx={{ mb: 2 }}
             />
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Status</InputLabel>
               <Select
                 value={formData.status || 'active'}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, status: e.target.value })
+                }
               >
                 <MenuItem value="active">Active</MenuItem>
                 <MenuItem value="inactive">Inactive</MenuItem>
               </Select>
             </FormControl>
           </>
-        )
+        );
       case 'sections':
         return (
           <>
@@ -1302,14 +2354,18 @@ const DataFormDialog = ({ open, type, mode, data, onClose, onSave }) => {
               fullWidth
               label="Section Name"
               value={formData.name || ''}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               sx={{ mb: 2 }}
             />
             <TextField
               fullWidth
               label="Grade Level"
               value={formData.grade || ''}
-              onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, grade: e.target.value })
+              }
               sx={{ mb: 2 }}
             />
             <TextField
@@ -1317,18 +2373,25 @@ const DataFormDialog = ({ open, type, mode, data, onClose, onSave }) => {
               label="Capacity"
               type="number"
               value={formData.capacity || ''}
-              onChange={(e) => setFormData({ ...formData, capacity: parseInt(e.target.value) })}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  capacity: Number.parseInt(e.target.value),
+                })
+              }
               sx={{ mb: 2 }}
             />
             <TextField
               fullWidth
               label="Class Teacher"
               value={formData.teacher || ''}
-              onChange={(e) => setFormData({ ...formData, teacher: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, teacher: e.target.value })
+              }
               sx={{ mb: 2 }}
             />
           </>
-        )
+        );
       case 'departments':
         return (
           <>
@@ -1336,28 +2399,34 @@ const DataFormDialog = ({ open, type, mode, data, onClose, onSave }) => {
               fullWidth
               label="Department Name"
               value={formData.name || ''}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               sx={{ mb: 2 }}
             />
             <TextField
               fullWidth
               label="Department Head"
               value={formData.head || ''}
-              onChange={(e) => setFormData({ ...formData, head: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, head: e.target.value })
+              }
               sx={{ mb: 2 }}
             />
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Status</InputLabel>
               <Select
                 value={formData.status || 'active'}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, status: e.target.value })
+                }
               >
                 <MenuItem value="active">Active</MenuItem>
                 <MenuItem value="inactive">Inactive</MenuItem>
               </Select>
             </FormControl>
           </>
-        )
+        );
       case 'employment':
         return (
           <>
@@ -1365,7 +2434,9 @@ const DataFormDialog = ({ open, type, mode, data, onClose, onSave }) => {
               fullWidth
               label="Employment Type Name"
               value={formData.name || ''}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               sx={{ mb: 2 }}
             />
             <TextField
@@ -1374,28 +2445,34 @@ const DataFormDialog = ({ open, type, mode, data, onClose, onSave }) => {
               multiline
               rows={3}
               value={formData.description || ''}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               sx={{ mb: 2 }}
             />
             <TextField
               fullWidth
               label="Hours per Week"
               value={formData.hours || ''}
-              onChange={(e) => setFormData({ ...formData, hours: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, hours: e.target.value })
+              }
               sx={{ mb: 2 }}
             />
             <FormControlLabel
               control={
                 <Switch
                   checked={formData.benefits || false}
-                  onChange={(e) => setFormData({ ...formData, benefits: e.target.checked })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, benefits: e.target.checked })
+                  }
                 />
               }
               label="Includes Benefits"
               sx={{ mb: 2 }}
             />
           </>
-        )
+        );
       case 'semesters':
         return (
           <>
@@ -1403,7 +2480,9 @@ const DataFormDialog = ({ open, type, mode, data, onClose, onSave }) => {
               fullWidth
               label="Semester Name"
               value={formData.name || ''}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               sx={{ mb: 2 }}
             />
             <TextField
@@ -1411,7 +2490,9 @@ const DataFormDialog = ({ open, type, mode, data, onClose, onSave }) => {
               label="Start Date"
               type="date"
               value={formData.startDate || ''}
-              onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, startDate: e.target.value })
+              }
               InputLabelProps={{ shrink: true }}
               sx={{ mb: 2 }}
             />
@@ -1420,7 +2501,9 @@ const DataFormDialog = ({ open, type, mode, data, onClose, onSave }) => {
               label="End Date"
               type="date"
               value={formData.endDate || ''}
-              onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, endDate: e.target.value })
+              }
               InputLabelProps={{ shrink: true }}
               sx={{ mb: 2 }}
             />
@@ -1428,7 +2511,9 @@ const DataFormDialog = ({ open, type, mode, data, onClose, onSave }) => {
               <InputLabel>Status</InputLabel>
               <Select
                 value={formData.status || 'upcoming'}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, status: e.target.value })
+                }
               >
                 <MenuItem value="upcoming">Upcoming</MenuItem>
                 <MenuItem value="active">Active</MenuItem>
@@ -1436,7 +2521,7 @@ const DataFormDialog = ({ open, type, mode, data, onClose, onSave }) => {
               </Select>
             </FormControl>
           </>
-        )
+        );
       case 'assignments':
         return (
           <>
@@ -1444,7 +2529,9 @@ const DataFormDialog = ({ open, type, mode, data, onClose, onSave }) => {
               fullWidth
               label="Assignment Type Name"
               value={formData.name || ''}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               sx={{ mb: 2 }}
             />
             <TextField
@@ -1453,7 +2540,9 @@ const DataFormDialog = ({ open, type, mode, data, onClose, onSave }) => {
               multiline
               rows={3}
               value={formData.description || ''}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               sx={{ mb: 2 }}
             />
             <TextField
@@ -1461,7 +2550,12 @@ const DataFormDialog = ({ open, type, mode, data, onClose, onSave }) => {
               label="Weight (%)"
               type="number"
               value={formData.weight || ''}
-              onChange={(e) => setFormData({ ...formData, weight: parseInt(e.target.value) })}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  weight: Number.parseInt(e.target.value),
+                })
+              }
               sx={{ mb: 2 }}
             />
             <TextField
@@ -1469,15 +2563,20 @@ const DataFormDialog = ({ open, type, mode, data, onClose, onSave }) => {
               label="Maximum Points"
               type="number"
               value={formData.maxPoints || ''}
-              onChange={(e) => setFormData({ ...formData, maxPoints: parseInt(e.target.value) })}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  maxPoints: Number.parseInt(e.target.value),
+                })
+              }
               sx={{ mb: 2 }}
             />
           </>
-        )
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -1485,9 +2584,7 @@ const DataFormDialog = ({ open, type, mode, data, onClose, onSave }) => {
         {mode === 'add' ? 'Add' : 'Edit'} {type}
       </DialogTitle>
       <DialogContent>
-        <Box sx={{ mt: 1 }}>
-          {renderFormFields()}
-        </Box>
+        <Box sx={{ mt: 1 }}>{renderFormFields()}</Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} startIcon={<CancelIcon />}>
@@ -1503,7 +2600,7 @@ const DataFormDialog = ({ open, type, mode, data, onClose, onSave }) => {
         </Button>
       </DialogActions>
     </Dialog>
-  )
-}
+  );
+};
 
-export default DataManagement
+export default DataManagement;
